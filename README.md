@@ -37,11 +37,13 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 1. Read xml-file and extract properties:
 
-- Name
-- Category Name
-- Client Name
-- Login
+    - Name
+    - Category Name
+    - Client Name
+    - Login
 
 2. Search accounts via [API]((https://syspass-doc.readthedocs.io/en/3.1/application/api.html)) with values from xml
 
-3. If account was found, set required permissions
+3. Update permissions for accounts
+
+    Uses chrome webdriver in headless mode.
