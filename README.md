@@ -18,20 +18,20 @@ Set permissions for accounts to [syspass](https://github.com/nuxsmin/sysPass).
 
 2. Create API Authorization token
 
-Configuration -> Users and Accesses
+    Configuration -> Users and Accesses
 
 3. Prepare app config:
 
-```shell
-cp sip.yml-dist sip.yml
-```
+    ```shell
+    cp sip.yml-dist sip.yml
+    ```
 
 4. Run:
 
-```shell
-  chmod +x spt
-  ./spt --ignore-errors=false import.xml
-  ```
+    ```shell
+    chmod +x spt
+    ./spt --ignore-errors=false import.xml
+    ```
 
 ## How it works
 
