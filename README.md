@@ -18,13 +18,20 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 2. Create API Authorization token
 
-    Configuration -> Users and Accesses
+   Go to `Configuration -> Users and Accesses -> API Authorizations`
+
+   Create authorization for user with global view permissions -> Select action `Search for accounts` ->
+   Create password -> Save
+
+   View and remember API token
 
 3. Prepare app config:
 
     ```shell
     cp sip.yml-dist sip.yml
     ```
+   
+    Use token password and api token from step 2.
 
 4. Run:
 
