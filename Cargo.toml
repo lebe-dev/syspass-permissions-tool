@@ -1,0 +1,12 @@
+[package]
+name = "syspass-permissions-tool"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = "0.4"
+log4rs = "1"
+
+[dev-dependencies]
+env_logger = "0.10.0"
+fake = "2"
