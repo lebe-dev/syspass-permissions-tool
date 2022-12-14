@@ -12,7 +12,7 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 2. At the moment (14.12.2022) I didn't find suitable solution.
 
-## Getting started
+## Usage
 
 1. Prepare xml file for import
 
