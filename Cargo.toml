@@ -3,6 +3,12 @@ name = "syspass-permissions-tool"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = 'abort'
+
 [dependencies]
 log = "0.4"
 log4rs = "1"
