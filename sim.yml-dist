@@ -1,0 +1,19 @@
+api-auth:
+  token: CHANGE-ME
+  token-pass: CHANGE-ME
+
+user-permissions:
+  view:
+    - user1
+    - user2
+
+  edit: []
+
+group-permissions:
+  view:
+    - group1
+    - group2
+
+  edit:
+    - group1
+    - group2
