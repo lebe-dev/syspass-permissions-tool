@@ -10,8 +10,13 @@ codegen-units = 1
 panic = 'abort'
 
 [dependencies]
+anyhow = "1"
+
 log = "0.4"
 log4rs = "1"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8.26"
 
 [dev-dependencies]
 env_logger = "0.10.0"
