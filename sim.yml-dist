@@ -2,11 +2,15 @@ api-auth:
   token: CHANGE-ME
   token-pass: CHANGE-ME
 
-user-permissions:
-  view:
-    - user1
-    - user2
+# Credentials for web ui
+auth:
+  login: CHANGE-ME
+  password: CHANGE-ME
 
+ignore-errors: false
+
+user-permissions:
+  view: []
   edit: []
 
 group-permissions:
