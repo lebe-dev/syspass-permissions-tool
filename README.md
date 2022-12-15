@@ -37,7 +37,7 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 
     ```shell
     chmod +x spt
-    ./spt --ignore-errors=false import.xml
+    ./spt import.xml
     ```
 
 ## How it works
