@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::process::exit;
 
-use clap::{Arg, ArgAction, Command, Parser};
+use clap::{Arg, ArgAction, Command};
 
 pub mod config;
 pub mod types;
@@ -30,7 +30,7 @@ fn main() {
                 .arg(
                     Arg::new(XML_FILE_OPTION)
                         .long(XML_FILE_OPTION)
-                        .help("search locally installed packages for matching strings")
+                        .help("xml file with accounts")
                         .action(ArgAction::Set)
                         .num_args(1..),
                 )
