@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+    <Meta>
+        <Generator>sysPass</Generator>
+        <Version>3211.22070201</Version>
+        <Time>1669620743</Time>
+        <User id="1">admin</User>
+        <Group id="1">Admins</Group>
+        <Hash sign="9e971d659816a7dd325e4c75f97c9853605be53db81b514f90103757a61af51b">
+            b5141af49246795c42e74012c19dab36974708be
+        </Hash>
+    </Meta>
+    <Categories>
+        <Category id="1">
+            <name>APP</name>
+            <description></description>
+        </Category>
+    </Categories>
+    <Clients>
+        <Client id="1">
+            <name>BirchStore</name>
+            <description></description>
+        </Client>
+    </Clients>
+    <Tags>
+        <Tag id="1">
+            <name>Shop</name>
+        </Tag>
+        <Tag id="2">
+            <name>SSO</name>
+        </Tag>
+    </Tags>
+    <Accounts>
+        <Account id="1">
+            <name>Ivan Petrov</name>
+            <clientId>1</clientId>
+            <categoryId>1</categoryId>
+            <login>i.petrov</login>
+            <url>https://app.internal.company.ru:5555/app/</url>
+            <notes>
+                i.petrov@company.ru
+            </notes>
+            <pass>v23t8nv2u394tyd</pass>
+            <key></key>
+            <tags>
+                <tag id="1"/>
+                <tag id="2"/>
+            </tags>
+        </Account>
+        <Account id="2">
+            <name>Абрамова Нина Эдуардовна</name>
+            <clientId>1</clientId>
+            <categoryId>1</categoryId>
+            <login>n.abramova</login>
+            <url>https://stage.internal.company.ru</url>
+            <notes>
+                n.abramova@somecompany.ru
+            </notes>
+            <pass>v35n8t39485tg</pass>
+            <key></key>
+            <tags>
+                <tag id="1"/>
+                <tag id="2"/>
+            </tags>
+        </Account>
+    </Accounts>
+</Root>
