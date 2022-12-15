@@ -1,0 +1,22 @@
+api-auth:
+  token: r4ndom0s
+  token-pass: g9285gj9284vfj
+
+auth:
+  login: b2y63nu46n456
+  password: 2b34t45ynn968m
+
+ignore-errors: true
+
+user-permissions:
+  view: []
+  edit: []
+
+group-permissions:
+  view:
+    - group1
+    - group2
+
+  edit:
+    - group1
+    - group2
