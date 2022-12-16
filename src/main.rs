@@ -2,10 +2,14 @@ use std::path::Path;
 use std::process::exit;
 
 use clap::{Arg, ArgAction, Command};
+use log::info;
 use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::load_config_from_file;
+use crate::logging::logging::get_logging_config;
 use crate::syspass::login::login_to_syspass;
+use crate::syspass::perms::set_permissions_for_account_in_syspass;
+use crate::xml::get_xml_config_from_file;
 
 pub mod config;
 pub mod types;
@@ -47,6 +51,12 @@ async fn main() {
                 )
         ).get_matches();
 
+    let logging_config = get_logging_config("debug");
+
+    match log4rs::init_config(logging_config) {
+        Ok(_) => {}
+        Err(e) => eprintln!("{}", e)
+    }
 
     match matches.subcommand() {
         Some((SET_CMD, set_matches)) => {
@@ -68,7 +78,30 @@ async fn main() {
                                         match login_to_syspass(&driver, &config.syspass_url,
                                                &config.auth.login, &config.auth.password).await {
                                             Ok(_) => {
-                                                println!("user logged to syspass");
+                                                println!("user '{}' logged to syspass", &config.auth.login);
+
+                                                match get_xml_config_from_file(xml_file) {
+                                                    Ok(xml_config) => {
+
+                                                        for account in xml_config.accounts {
+                                                            match set_permissions_for_account_in_syspass(&driver, &config.syspass_url,
+                                                                                                         &account.login, &config.user_permissions,
+                                                                                                         &config.group_permissions).await {
+                                                                Ok(_) => {
+                                                                    println!("complete");
+                                                                },
+                                                                Err(e) => {
+                                                                    println!("couldn't find account '{}', skip", account.login)
+                                                                },
+                                                            }
+                                                        }
+
+                                                    }
+                                                    Err(e) => {
+                                                        eprintln!("read xml error: {}", e.root_cause());
+                                                        exit(EXIT_CODE_ERROR)
+                                                    }
+                                                }
                                             }
                                             Err(_) => {
                                                 eprintln!("syspass auth error");
