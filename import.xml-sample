@@ -13,13 +13,13 @@
     <Categories>
         <Category id="1">
             <name>APP</name>
-            <description></description>
+            <description/>
         </Category>
     </Categories>
     <Clients>
         <Client id="1">
             <name>BirchStore</name>
-            <description></description>
+            <description/>
         </Client>
     </Clients>
     <Tags>
@@ -41,7 +41,7 @@
                 i.petrov@company.ru
             </notes>
             <pass>v23t8nv2u394tyd</pass>
-            <key></key>
+            <key/>
             <tags>
                 <tag id="1"/>
                 <tag id="2"/>
@@ -57,7 +57,7 @@
                 n.abramova@somecompany.ru
             </notes>
             <pass>v35n8t39485tg</pass>
-            <key></key>
+            <key/>
             <tags>
                 <tag id="1"/>
                 <tag id="2"/>
