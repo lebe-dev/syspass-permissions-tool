@@ -93,18 +93,12 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         current_login = value;
                     },
                     b"clientId" => {
-                        let txt = reader
-                            .read_text(e.name())
-                            .expect("cannot decode text value");
-                        let value = txt.to_string();
+                        let value = get_element_text(&mut reader, e.name())?;
                         debug!("client id: {}", value);
                         current_client_id = value.parse::<u16>()?;
                     },
                     b"categoryId" => {
-                        let txt = reader
-                            .read_text(e.name())
-                            .expect("cannot decode text value");
-                        let value = txt.to_string();
+                        let value = get_element_text(&mut reader, e.name())?;
                         debug!("category id: {}", value);
                         current_category_id = value.parse::<u16>()?;
                     },
