@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root
+    <Meta>
+        <Generator>sysPass</Generator>
+        <Version>3211.22070201</Version>
+        <Time>1669620743</Time>
+        <User id="1">admin</User>
+        <Group id="1">Admins</Group>
+        <Hash sign="9e971d659816a7dd325e4c75f97c9853605be53db81b514f90103757a61af51b">
+            b5141af49246795c42e74012c19dab33974708be
+        </Hash>
+    </Meta>
+    <Categories>
+        <Category id="1">
+            <name>APP</name>
+            <description/>
+        </Category>
+        <Category id="2">
+            <name>CLI</name>
+            <description/>
+        </Category>
+    </Categories>
+</Root>

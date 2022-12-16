@@ -58,10 +58,16 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
     let mut current_client_id: u16 = UNINITIALIZED_ID_VALUE;
     let mut current_category_id: u16 = UNINITIALIZED_ID_VALUE;
 
+    let mut syntax_error = false;
+
     loop {
 
         match reader.read_event_into(&mut buf) {
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+            Err(e) => {
+                error!("xml has syntax error(s): {}", e);
+                syntax_error = true;
+                break;
+            },
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
@@ -157,17 +163,22 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
         buf.clear();
     }
 
-    let config = XmlConfig {
-        categories: categories.clone(),
-        clients: clients.clone(),
-        accounts: accounts.clone(),
-    };
+    if !syntax_error {
+        let config = XmlConfig {
+            categories: categories.clone(),
+            clients: clients.clone(),
+            accounts: accounts.clone(),
+        };
 
-    debug!("---[xml config]---");
-    debug!("{:?}", config);
-    debug!("---[/xml config]---");
+        debug!("---[xml config]---");
+        debug!("{:?}", config);
+        debug!("---[/xml config]---");
 
-    Ok(config)
+        Ok(config)
+
+    } else {
+        Err(anyhow!("xml parse error(s)"))
+    }
 }
 
 fn get_element_id_attribute(attrs: &mut Attributes) -> Result<Option<u16>, Error> {
@@ -279,5 +290,11 @@ mod tests {
         let filename = Faker.fake::<String>();
         let path = Path::new(&filename);
         assert!(get_xml_config_from_file(&path).is_err());
+    }
+
+    #[test]
+    fn return_error_for_invalid_xml_file() {
+        let path = Path::new("test-data").join("invalid.xml");
+        assert!(get_xml_config_from_file(path.as_path()).is_err());
     }
 }
