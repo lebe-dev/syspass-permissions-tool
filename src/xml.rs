@@ -212,6 +212,8 @@ fn get_element_text(reader: &mut Reader<&[u8]>, element_name: QName) -> Result<S
 mod tests {
     use std::path::Path;
 
+    use fake::{Fake, Faker};
+
     use crate::tests::init_logging;
     use crate::xml::{Account, get_xml_config_from_file, MetaProperty, XmlConfig};
 
@@ -270,5 +272,12 @@ mod tests {
                 panic!("result expected")
             }
         }
+    }
+
+    #[test]
+    fn return_error_for_missing_file() {
+        let filename = Faker.fake::<String>();
+        let path = Path::new(&filename);
+        assert!(get_xml_config_from_file(&path).is_err());
     }
 }
