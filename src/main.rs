@@ -2,11 +2,16 @@ use std::path::Path;
 use std::process::exit;
 
 use clap::{Arg, ArgAction, Command};
+use thirtyfour::{DesiredCapabilities, WebDriver};
+
+use crate::config::load_config_from_file;
+use crate::syspass::login::login_to_syspass;
 
 pub mod config;
 pub mod types;
 pub mod logging;
 pub mod xml;
+pub mod syspass;
 
 #[cfg(test)]
 pub mod tests;
@@ -20,7 +25,8 @@ pub const XML_FILE_OPTION: &str = "xml-file";
 
 const EXIT_CODE_ERROR: i32 = 1;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let matches = Command::new(APP_NAME)
         .name(APP_NAME)
         .bin_name(APP_NAME)
@@ -34,9 +40,10 @@ fn main() {
                 .arg(
                     Arg::new(XML_FILE_OPTION)
                         .long(XML_FILE_OPTION)
+                        .default_value("import.xml")
                         .help("xml file with accounts")
                         .action(ArgAction::Set)
-                        .num_args(1..),
+                        .required(false),
                 )
         ).get_matches();
 
@@ -50,7 +57,37 @@ fn main() {
                     let xml_file = Path::new(path);
 
                     if xml_file.is_file() && xml_file.exists() {
-                        unimplemented!()
+
+                        let config_file = Path::new(CONFIG_FILE);
+                        match load_config_from_file(config_file) {
+                            Ok(config) => {
+
+                                let caps = DesiredCapabilities::chrome();
+                                match WebDriver::new("http://localhost:9515", caps).await {
+                                    Ok(driver) => {
+                                        match login_to_syspass(&driver, &config.syspass_url,
+                                               &config.auth.login, &config.auth.password).await {
+                                            Ok(_) => {
+                                                println!("user logged to syspass");
+                                            }
+                                            Err(_) => {
+                                                eprintln!("syspass auth error");
+                                                exit(EXIT_CODE_ERROR)
+                                            }
+                                        }
+                                    }
+                                    Err(e) => {
+                                        eprintln!("webdriver error: {}", e);
+                                        exit(EXIT_CODE_ERROR)
+                                    }
+                                }
+
+                            }
+                            Err(e) => {
+                                eprintln!("couldn't load config: {}", e);
+                                exit(EXIT_CODE_ERROR)
+                            }
+                        }
 
                     } else {
                         eprintln!("xml file wasn't found '{}'", xml_file.display());

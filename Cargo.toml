@@ -22,6 +22,11 @@ serde_yaml = "0.9.14"
 
 quick-xml = "0.26.0"
 
+tokio = { version = "1.23", features = ["full"] }
+thirtyfour = "0.31.0"
+
+html_parser = "0.6.3"
+
 [dev-dependencies]
 env_logger = "0.10.0"
 fake = "2"
