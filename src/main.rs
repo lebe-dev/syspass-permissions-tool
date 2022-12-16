@@ -6,6 +6,10 @@ use clap::{Arg, ArgAction, Command};
 pub mod config;
 pub mod types;
 pub mod logging;
+pub mod xml;
+
+#[cfg(test)]
+pub mod tests;
 
 pub const APP_NAME: &str = "app";
 
