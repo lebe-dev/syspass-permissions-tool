@@ -14,17 +14,11 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 ## Usage
 
-1. Install Chrome Web Driver
-
-    ArchLinux:
-
-    ```shell
-    paru -S chromedriver
-    ```
-
-   For other OS check [official download page](https://chromedriver.chromium.org/downloads).   
+1. [Install and run chrome driver](docs/Install.md)
 
 2. Prepare XML file for import
+
+   Prepare `import.xml` file. You can override filename with `--xml-file` option.
 
 3. Create API Authorization token
 
@@ -41,13 +35,13 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
     cp sip.yml-dist sip.yml
     ```
    
-    Use token password and api token from step 2.
+    Edit and put valid credentials, tokens, etc.
 
 5. Run:
 
     ```shell
     chmod +x spt
-    ./spt set --xml-file import.xml
+    ./spt set
     ```
 
 ## How it works
