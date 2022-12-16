@@ -92,10 +92,7 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         current_name = txt.to_string();
                     },
                     b"login" => {
-                        let txt = reader
-                            .read_text(e.name())
-                            .expect("cannot decode text value");
-                        let value = txt.to_string();
+                        let value = get_element_text(&mut reader, e.name())?;
                         debug!("login: {}", value);
                         current_login = value;
                     },
@@ -213,6 +210,12 @@ fn get_element_id_attribute(attrs: &mut Attributes) -> Result<Option<u16>, Error
         None => Ok(None)
     }
 
+}
+
+fn get_element_text(reader: &mut Reader<&[u8]>, element_name: QName) -> Result<String, Error> {
+    let txt = reader
+        .read_text(element_name)?;
+    Ok(txt.to_string())
 }
 
 #[cfg(test)]
