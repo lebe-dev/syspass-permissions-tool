@@ -1,5 +1,6 @@
 /target
 /*.iml
-/sit
+/spt
 /*.log
 /import.xml
+/spt.yml
