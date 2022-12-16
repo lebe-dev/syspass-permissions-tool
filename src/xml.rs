@@ -65,7 +65,8 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
-                debug!("open tag '{:?}'", e.name().as_ref());
+                let tag_name = String::from_utf8(e.name().as_ref().to_vec())?;
+                debug!("open tag '{}'", tag_name);
 
                 match e.name().as_ref() {
                     b"Category" | b"Client" | b"Account" => {
@@ -76,7 +77,7 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         match id_value {
                             Some(id) => {
                                 current_id = id;
-                                info!("id - {}", id);
+                                debug!("id: {}", id);
                             }
                             None => error!("tag doesn't have 'id' attribute")
                         }
@@ -85,7 +86,8 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         let txt = reader
                             .read_text(e.name())
                             .expect("cannot decode text value");
-                        debug!("name: {:?}", txt);
+                        let value = txt.to_string();
+                        debug!("name: {}", value);
 
                         current_name = txt.to_string();
                     },
@@ -93,28 +95,24 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         let txt = reader
                             .read_text(e.name())
                             .expect("cannot decode text value");
-                        debug!("name: {:?}", txt);
-
-                        current_login = txt.to_string();
+                        let value = txt.to_string();
+                        debug!("login: {}", value);
+                        current_login = value;
                     },
                     b"clientId" => {
                         let txt = reader
                             .read_text(e.name())
                             .expect("cannot decode text value");
-                        debug!("name: {:?}", txt);
-
                         let value = txt.to_string();
-
+                        debug!("client id: {}", value);
                         current_client_id = value.parse::<u16>()?;
                     },
                     b"categoryId" => {
                         let txt = reader
                             .read_text(e.name())
                             .expect("cannot decode text value");
-                        debug!("name: {:?}", txt);
-
                         let value = txt.to_string();
-
+                        debug!("category id: {}", value);
                         current_category_id = value.parse::<u16>()?;
                     },
                     _ => (),
@@ -188,11 +186,9 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
 fn get_element_id_attribute(attrs: &mut Attributes) -> Result<Option<u16>, Error> {
     let attribute = attrs.find(|a|{
         match a {
-            Ok(au) => {
-                au.key == QName(b"id")
-            }
+            Ok(value) => value.key == QName(b"id"),
             Err(e) => {
-                error!("{}", e);
+                error!("couldn't get id attribute value: {}", e);
                 false
             }
         }
@@ -204,21 +200,17 @@ fn get_element_id_attribute(attrs: &mut Attributes) -> Result<Option<u16>, Error
             match attribute_value {
                 Ok(value) => {
                     let id_value = String::from_utf8(value.value.to_vec())?;
-
                     let id = id_value.parse::<u16>()?;
-
                     Ok(Some(id))
                 }
                 Err(e) => {
-                    error!("{}", e);
+                    error!("couldn't read id attribute value: {}", e);
                     Err(anyhow!("couldn't read id attribute value"))
                 }
             }
 
         }
-        None => {
-            Ok(None)
-        }
+        None => Ok(None)
     }
 
 }
@@ -239,12 +231,20 @@ mod tests {
                 MetaProperty {
                     id: 1,
                     name: "APP".to_string(),
+                },
+                MetaProperty {
+                    id: 2,
+                    name: "CLI".to_string(),
                 }
             ],
             clients: vec![
                 MetaProperty {
                     id: 1,
                     name: "BirchStore".to_string(),
+                },
+                MetaProperty {
+                    id: 2,
+                    name: "KalinkaStore".to_string(),
                 }
             ],
             accounts: vec![
@@ -252,13 +252,13 @@ mod tests {
                     id: 1,
                     name: "Ivan Petrov".to_string(),
                     client_id: 1,
-                    category_id: 1,
+                    category_id: 2,
                     login: "i.petrov".to_string(),
                 },
                 Account {
                     id: 2,
                     name: "Abramova Nina".to_string(),
-                    client_id: 1,
+                    client_id: 2,
                     category_id: 1,
                     login: "n.abramova".to_string(),
                 }
