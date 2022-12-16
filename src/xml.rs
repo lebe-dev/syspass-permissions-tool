@@ -32,7 +32,7 @@ pub struct Account {
     pub login: String
 }
 
-const UNINITIALIZED_ID_VALUE: u16 = 10000;
+pub const UNINITIALIZED_ID_VALUE: u16 = 12345;
 
 /// Extract from given xml file properties for entities:
 /// - category
