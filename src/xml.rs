@@ -34,10 +34,10 @@ pub struct Account {
 
 const UNINITIALIZED_ID_VALUE: u16 = 10000;
 
-/// - Name
-/// - Category Name
-/// - Client Name
-/// - Login
+/// Extract from given xml file partial properties for entities:
+/// - category
+/// - client
+/// - account
 pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> {
     info!("load xml configuration from file '{}'", file_path.display());
     let xml = fs::read_to_string(file_path)
