@@ -83,13 +83,9 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                         }
                     },
                     b"name" => {
-                        let txt = reader
-                            .read_text(e.name())
-                            .expect("cannot decode text value");
-                        let value = txt.to_string();
+                        let value = get_element_text(&mut reader, e.name())?;
                         debug!("name: {}", value);
-
-                        current_name = txt.to_string();
+                        current_name = value;
                     },
                     b"login" => {
                         let value = get_element_text(&mut reader, e.name())?;
