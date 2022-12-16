@@ -1,3 +1,5 @@
+syspass-url: 'http://localhost:18080'
+
 api-auth:
   token: CHANGE-ME
   token-pass: CHANGE-ME

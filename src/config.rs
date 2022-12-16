@@ -8,6 +8,9 @@ use crate::types::OperationResult;
 
 #[derive(Deserialize,PartialEq,Debug)]
 pub struct AppConfig {
+    #[serde(rename(deserialize = "syspass-url"))]
+    pub syspass_url: String,
+
     #[serde(rename(deserialize = "api-auth"))]
     pub api_auth: ApiAuthConfig,
     pub auth: AuthConfig,
@@ -65,6 +68,7 @@ mod tests {
         let config = load_config_from_file(config_file.as_path()).unwrap();
 
         let expected_config = AppConfig {
+            syspass_url: "http://localhost:18080".to_string(),
             api_auth: ApiAuthConfig {
                 token: "r4ndom0s".to_string(),
                 token_pass: "g9285gj9284vfj".to_string(),

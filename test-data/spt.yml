@@ -1,3 +1,5 @@
+syspass-url: 'http://localhost:18080'
+
 api-auth:
   token: r4ndom0s
   token-pass: g9285gj9284vfj
