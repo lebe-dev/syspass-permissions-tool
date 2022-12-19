@@ -85,8 +85,7 @@ async fn main() {
 
                                                         for account in xml_config.accounts {
                                                             match set_permissions_for_account_in_syspass(&driver, &config.syspass_url,
-                                                                                                         &account.login, &config.permissions.user,
-                                                                                                         &config.permissions.group).await {
+                                                                                                         &account.login, &config.permissions).await {
                                                                 Ok(_) => {
                                                                     println!("complete");
                                                                 },

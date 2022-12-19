@@ -4,12 +4,12 @@ use std::time::Duration;
 use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
-use crate::config::EntityPermissionsConfig;
+use crate::config::PermissionsConfig;
 use crate::types::EmptyResult;
 
 pub async fn set_permissions_for_account_in_syspass(
     driver: &WebDriver, syspass_base_url: &str, login: &str,
-    user_permissions: &EntityPermissionsConfig, group_permissions: &EntityPermissionsConfig) -> EmptyResult {
+    permissions: &PermissionsConfig) -> EmptyResult {
 
     info!("set permissions for syspass account '{}'", login);
 
@@ -67,32 +67,55 @@ pub async fn set_permissions_for_account_in_syspass(
                 if perm_inputs.len() == 4 {
                     info!("add user view permissions");
                     set_permissions_for_security_entity(&perm_inputs, 0,
-                                                        &user_permissions.view).await?;
+                                                        &permissions.user.view).await?;
 
                     click_for_close_element.click().await?;
 
                     info!("add user edit permissions");
                     set_permissions_for_security_entity(&perm_inputs, 1,
-                                                        &user_permissions.edit).await?;
+                                                        &permissions.user.edit).await?;
 
                     click_for_close_element.click().await?;
 
                     info!("add group view permissions");
                     set_permissions_for_security_entity(&perm_inputs, 2,
-                                                        &group_permissions.view).await?;
+                                                        &permissions.group.view).await?;
 
                     click_for_close_element.click().await?;
 
                     info!("add group edit permissions");
                     set_permissions_for_security_entity(&perm_inputs, 3,
-                                                        &group_permissions.edit).await?;
+                                                        &permissions.group.edit).await?;
 
                     click_for_close_element.click().await?;
 
-                    let form_rows = driver.find_all(By::ClassName("valField")).await?;
+                    let permission_panel = driver.find(By::Id("permission-panel")).await?;
+                    let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
+
+                    info!("form rows: {}", form_rows.len());
 
                     if form_rows.len() >= 6 {
+                        let owner_row = form_rows.get(2).unwrap();
+                        info!("set owner");
+                        set_additional_property_value(&owner_row, &permissions.owner).await?;
 
+                        click_for_close_element.click().await?;
+
+                        let main_group_row = form_rows.get(3).unwrap();
+                        info!("set main group");
+                        set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+
+                        if permissions.private_account {
+                            let private_account_switch = form_rows.get(4).unwrap();
+                            let private_account_control = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+                            private_account_control.click().await?;
+                        }
+
+                        if permissions.private_account_for_group {
+                            let private_account_for_group_switch = form_rows.get(5).unwrap();
+                            let private_account_control = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
+                            private_account_control.click().await?;
+                        }
 
                     } else {
                         error!("unsupported syspass ui version, at least six form rows expected")
@@ -135,6 +158,25 @@ pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
                     option.click().await?;
                 }
             }
+        }
+    }
+
+    Ok(())
+}
+
+pub async fn set_additional_property_value(element: &WebElement, value: &str) -> EmptyResult {
+    info!("set value '{}'", value);
+    let input = element.find(By::ClassName("selectize-control")).await?;
+    input.click().await?;
+
+    let options = element.find_all(By::ClassName("option")).await?;
+
+    for option in options {
+        let text = option.text().await?;
+
+        if &text == value {
+            info!("- set '{}' - success", value);
+            option.click().await?;
         }
     }
 
