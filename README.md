@@ -53,11 +53,11 @@ Manage permissions for [sysPass](https://github.com/nuxsmin/sysPass) accounts.
     - Client Name
     - Login
 
-2. Search accounts via [API]((https://syspass-doc.readthedocs.io/en/3.1/application/api.html)) with values from xml
+2. Search accounts via UI with values from xml
 
 3. Update permissions for accounts
 
-    Uses chrome webdriver in headless mode.
+    Uses chrome webdriver.
 
 ## For developers
 

@@ -13,5 +13,5 @@
 2. Build:
 
     ```shell
-    cargo build --release
+    cargo build --release && mv build/release/syspass-permissions-tool spt
     ```
