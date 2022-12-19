@@ -26,3 +26,6 @@ permissions:
 
   owner: 'Mr. Editor'
   main-group: 'Demo group 1'
+
+  private-account: false
+  private-account-for-group: false

@@ -33,7 +33,13 @@ pub struct PermissionsConfig {
     pub owner: String,
 
     #[serde(rename(deserialize = "main-group"))]
-    pub main_group: String
+    pub main_group: String,
+
+    #[serde(rename(deserialize = "private-account"))]
+    pub private_account: bool,
+
+    #[serde(rename(deserialize = "private-account-for-group"))]
+    pub private_account_for_group: bool
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
@@ -57,7 +63,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{ApiAuthConfig, AppConfig, AuthConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
+    use crate::config::{AppConfig, AuthConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -88,8 +94,10 @@ mod tests {
                         "Demo group 1".to_string()
                     ],
                 },
-                owner: "Mr. Editor".to_string(),
+                owner: "Mr.Editor".to_string(),
                 main_group: "Demo group 1".to_string(),
+                private_account: false,
+                private_account_for_group: true
             },
         };
 

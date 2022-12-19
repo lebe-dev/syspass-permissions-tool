@@ -23,5 +23,8 @@ permissions:
       - Beta Group
       - Demo group 1
 
-  owner: 'Mr. Editor'
+  owner: 'Mr.Editor'
   main-group: 'Demo group 1'
+
+  private-account: false
+  private-account-for-group: true
