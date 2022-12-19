@@ -2,7 +2,7 @@ use std::path::Path;
 use std::process::exit;
 
 use clap::{Arg, ArgAction, Command};
-use log::info;
+use log::error;
 use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::load_config_from_file;
@@ -85,12 +85,13 @@ async fn main() {
 
                                                         for account in xml_config.accounts {
                                                             match set_permissions_for_account_in_syspass(&driver, &config.syspass_url,
-                                                                                                         &account.login, &config.user_permissions,
-                                                                                                         &config.group_permissions).await {
+                                                                                                         &account.login, &config.permissions.user,
+                                                                                                         &config.permissions.group).await {
                                                                 Ok(_) => {
                                                                     println!("complete");
                                                                 },
                                                                 Err(e) => {
+                                                                    error!("{}", e);
                                                                     println!("couldn't find account '{}', skip", account.login)
                                                                 },
                                                             }

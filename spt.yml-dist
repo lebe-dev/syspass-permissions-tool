@@ -1,9 +1,5 @@
 syspass-url: 'http://localhost:18080'
 
-api-auth:
-  token: CHANGE-ME
-  token-pass: CHANGE-ME
-
 # Credentials for web ui
 auth:
   login: CHANGE-ME
@@ -11,15 +7,22 @@ auth:
 
 ignore-errors: false
 
-user-permissions:
-  view: []
-  edit: []
+permissions:
+  user:
+    view:
+      - sysPass Admin
 
-group-permissions:
-  view:
-    - group1
-    - group2
+    edit:
+      - Mr.Editor
+      - sysPass Admin
 
-  edit:
-    - group1
-    - group2
+  group:
+    view:
+      - Admins
+
+    edit:
+      - Beta Group
+      - Demo group 1
+
+  owner: 'Mr. Editor'
+  main-group: 'Demo group 1'

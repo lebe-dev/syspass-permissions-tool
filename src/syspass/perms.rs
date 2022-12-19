@@ -4,12 +4,12 @@ use std::time::Duration;
 use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
-use crate::config::PermissionsConfig;
+use crate::config::EntityPermissionsConfig;
 use crate::types::EmptyResult;
 
 pub async fn set_permissions_for_account_in_syspass(
     driver: &WebDriver, syspass_base_url: &str, login: &str,
-    user_permissions: &PermissionsConfig, group_permissions: &PermissionsConfig) -> EmptyResult {
+    user_permissions: &EntityPermissionsConfig, group_permissions: &EntityPermissionsConfig) -> EmptyResult {
 
     info!("set permissions for syspass account '{}'", login);
 
@@ -88,6 +88,16 @@ pub async fn set_permissions_for_account_in_syspass(
                                                         &group_permissions.edit).await?;
 
                     click_for_close_element.click().await?;
+
+                    let form_rows = driver.find_all(By::ClassName("valField")).await?;
+
+                    if form_rows.len() >= 6 {
+
+
+                    } else {
+                        error!("unsupported syspass ui version, at least six form rows expected")
+                    }
+
 
                 } else {
                     error!("unsupported syspass ui version, 4 divs expected with class 'tag-list-box'")

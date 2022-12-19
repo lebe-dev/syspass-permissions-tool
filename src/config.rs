@@ -11,17 +11,12 @@ pub struct AppConfig {
     #[serde(rename(deserialize = "syspass-url"))]
     pub syspass_url: String,
 
-    #[serde(rename(deserialize = "api-auth"))]
-    pub api_auth: ApiAuthConfig,
     pub auth: AuthConfig,
 
     #[serde(rename(deserialize = "ignore-errors"))]
     pub ignore_errors: bool,
 
-    #[serde(rename(deserialize = "user-permissions"))]
-    pub user_permissions: PermissionsConfig,
-    #[serde(rename(deserialize = "group-permissions"))]
-    pub group_permissions: PermissionsConfig,
+    pub permissions: PermissionsConfig
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
@@ -31,14 +26,18 @@ pub struct AuthConfig {
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
-pub struct ApiAuthConfig {
-    pub token: String,
-    #[serde(rename(deserialize = "token-pass"))]
-    pub token_pass: String
+pub struct PermissionsConfig {
+    pub user: EntityPermissionsConfig,
+    pub group: EntityPermissionsConfig,
+
+    pub owner: String,
+
+    #[serde(rename(deserialize = "main-group"))]
+    pub main_group: String
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
-pub struct PermissionsConfig {
+pub struct EntityPermissionsConfig {
     pub view: Vec<String>,
     pub edit: Vec<String>,
 }
@@ -58,7 +57,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{ApiAuthConfig, AppConfig, AuthConfig, load_config_from_file, PermissionsConfig};
+    use crate::config::{ApiAuthConfig, AppConfig, AuthConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -69,22 +68,28 @@ mod tests {
 
         let expected_config = AppConfig {
             syspass_url: "http://localhost:18080".to_string(),
-            api_auth: ApiAuthConfig {
-                token: "r4ndom0s".to_string(),
-                token_pass: "g9285gj9284vfj".to_string(),
-            },
             auth: AuthConfig {
                 login: "b2y63nu46n456".to_string(),
                 password: "2b34t45ynn968m".to_string(),
             },
             ignore_errors: true,
-            user_permissions: PermissionsConfig {
-                view: vec![],
-                edit: vec![],
-            },
-            group_permissions: PermissionsConfig {
-                view: vec!["group1".to_string(), "group2".to_string()],
-                edit: vec!["group1".to_string(), "group2".to_string()]
+            permissions: PermissionsConfig {
+                user: EntityPermissionsConfig {
+                    view: vec!["sysPass Admin".to_string()],
+                    edit: vec![
+                        "Mr.Editor".to_string(),
+                        "sysPass Admin".to_string()
+                    ],
+                },
+                group: EntityPermissionsConfig {
+                    view: vec!["Admins".to_string()],
+                    edit: vec![
+                        "Beta Group".to_string(),
+                        "Demo group 1".to_string()
+                    ],
+                },
+                owner: "Mr. Editor".to_string(),
+                main_group: "Demo group 1".to_string(),
             },
         };
 

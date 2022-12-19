@@ -1,24 +1,27 @@
 syspass-url: 'http://localhost:18080'
 
-api-auth:
-  token: r4ndom0s
-  token-pass: g9285gj9284vfj
-
 auth:
   login: b2y63nu46n456
   password: 2b34t45ynn968m
 
 ignore-errors: true
 
-user-permissions:
-  view: []
-  edit: []
+permissions:
+  user:
+    view:
+      - sysPass Admin
 
-group-permissions:
-  view:
-    - group1
-    - group2
+    edit:
+      - Mr.Editor
+      - sysPass Admin
 
-  edit:
-    - group1
-    - group2
+  group:
+    view:
+      - Admins
+
+    edit:
+      - Beta Group
+      - Demo group 1
+
+  owner: 'Mr. Editor'
+  main-group: 'Demo group 1'
