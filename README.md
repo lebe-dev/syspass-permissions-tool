@@ -1,10 +1,10 @@
 # Permissions Tool for sysPass
 
-Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
+Manage permissions for [sysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 ## Features
 
-1. Set permissions for accounts (Work in progress)
+1. Set permissions for accounts (WIP, Almost done)
 
 ## Why?
 
@@ -32,7 +32,7 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 4. Prepare app config:
 
     ```shell
-    cp sip.yml-dist sip.yml
+    cp spt.yml-dist spt.yml
     ```
    
     Edit and put valid credentials, tokens, etc.
@@ -58,3 +58,7 @@ Manage permissions for [SysPass](https://github.com/nuxsmin/sysPass) accounts.
 3. Update permissions for accounts
 
     Uses chrome webdriver in headless mode.
+
+## For developers
+
+See [Dev.md](docs/Dev.md).
