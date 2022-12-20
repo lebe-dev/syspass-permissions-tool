@@ -168,6 +168,12 @@ pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
         let perms_input = perm_inputs.get(perm_input_index).unwrap();
         perms_input.click().await?;
 
+        let current_perms = perms_input.find_all(By::ClassName("remove")).await?;
+        for current_perm in current_perms {
+            current_perm.click().await?;
+        }
+        debug!("current permissions have been removed");
+
         for permission in permissions {
             info!("- add '{}'", permission);
             let options = perms_input.find_all(By::ClassName("option")).await?;
@@ -181,6 +187,8 @@ pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
                 }
             }
         }
+
+        perms_input.click().await?;
     }
 
     Ok(())
