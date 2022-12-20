@@ -14,7 +14,6 @@ pub async fn set_permissions_for_account(
     driver: &WebDriver, syspass_base_url: &str, account_login: &str,
     account_client: &str, account_category: &str,
     permissions: &PermissionsConfig) -> EmptyResult {
-
     info!("set permissions for syspass account '{}'", account_login);
 
     let url = format!("{}/index.php?r=index", syspass_base_url);
@@ -38,13 +37,12 @@ pub async fn set_permissions_for_account(
         let item_category = get_search_item_category(&search_result_element).await?;
         debug!("category: '{}'", item_category);
 
-        let item_login = get_search_item_login(&search_result_element, ).await?;
+        let item_login = get_search_item_login(&search_result_element).await?;
         debug!("username: '{}'", item_login);
 
         if item_login == account_login &&
-           item_client == account_client &&
-           item_category == account_category {
-
+            item_client == account_client &&
+            item_category == account_category {
             debug!("going to account edit page");
             open_account_actions_menu(&search_result_element).await?;
 
@@ -123,42 +121,54 @@ pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
 
 pub async fn set_secondary_properties(permission_panel: &WebElement, permissions: &PermissionsConfig,
                                       click_for_close_element: &WebElement) -> EmptyResult {
+    info!("set secondary properties");
     let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
 
-    info!("form rows: {}", form_rows.len());
+    debug!("form rows: {}", form_rows.len());
 
-    let owner_row = form_rows.get(2).unwrap();
-    info!("set owner");
-    set_additional_property_value(&owner_row, &permissions.owner).await?;
+    if form_rows.len() >= 6 {
 
-    click_for_close_element.click().await?;
+        let owner_row = form_rows.get(2)
+            .expect("unexpected error");
+        info!("set owner");
+        set_additional_property_value(&owner_row, &permissions.owner).await?;
 
-    let main_group_row = form_rows.get(3).unwrap();
-    info!("set main group");
-    set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+        click_for_close_element.click().await?;
 
-    let private_account_switch = form_rows.get(4).unwrap();
-    debug!("check if 'private account option' enabled");
-    let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+        let main_group_row = form_rows.get(3)
+            .expect("unexpected error");
+        info!("set main group");
+        set_additional_property_value(&main_group_row, &permissions.main_group).await?;
 
-    if permissions.private_account != private_account_switch_status {
-        let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
-        option_switch.click().await?;
+        let private_account_switch = form_rows.get(4)
+            .expect("unexpected error");
+        debug!("check if 'private account option' enabled");
+        let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+
+        if permissions.private_account != private_account_switch_status {
+            let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+            option_switch.click().await?;
+        }
+
+        let private_account_for_group_switch = form_rows.get(5)
+            .expect("unexpected error");
+        debug!("check if 'private account for group' option enabled");
+        let private_account_for_group_switch_status = is_checkbox_enabled(
+            private_account_for_group_switch).await?;
+
+        if permissions.private_account_for_group != private_account_for_group_switch_status {
+            let option_switch = private_account_for_group_switch.find(
+                By::ClassName("mdl-switch")
+            ).await?;
+            option_switch.click().await?;
+        }
+
+        Ok(())
+
+    } else {
+        error!("table with secondary properties has less rows than expected (6)");
+        Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
     }
-
-    let private_account_for_group_switch = form_rows.get(5).unwrap();
-    debug!("check if 'private account for group' option enabled");
-    let private_account_for_group_switch_status = is_checkbox_enabled(
-        private_account_for_group_switch).await?;
-
-    if permissions.private_account_for_group != private_account_for_group_switch_status {
-        let option_switch = private_account_for_group_switch.find(
-            By::ClassName("mdl-switch")
-        ).await?;
-        option_switch.click().await?;
-    }
-
-    Ok(())
 }
 
 pub async fn is_checkbox_enabled(element: &WebElement) -> OperationResult<bool> {
