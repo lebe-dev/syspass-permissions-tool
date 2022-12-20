@@ -9,11 +9,11 @@ use crate::syspass::search::{get_search_item_category, get_search_item_client, g
 use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account(
-    driver: &WebDriver, syspass_base_url: &str, login: &str,
+    driver: &WebDriver, syspass_base_url: &str, account_login: &str,
     account_client: &str, account_category: &str,
     permissions: &PermissionsConfig) -> EmptyResult {
 
-    info!("set permissions for syspass account '{}'", login);
+    info!("set permissions for syspass account '{}'", account_login);
 
     let url = format!("{}/index.php?r=index", syspass_base_url);
 
@@ -23,31 +23,29 @@ pub async fn set_permissions_for_account(
 
     let search_input = driver.find(By::Id("search")).await?;
     search_input.clear().await?;
-    search_input.send_keys(login + Key::Enter).await?;
+    search_input.send_keys(account_login + Key::Enter).await?;
 
     thread::sleep(Duration::new(1, 0));
 
-    let elements = driver.find_all(By::ClassName("account-label")).await?;
+    let search_result_elements = driver.find_all(By::ClassName("account-label")).await?;
 
-    for element in elements {
-        let client = get_search_item_client(&element).await?;
-        debug!("client: '{}'", client);
+    for search_result_element in search_result_elements {
+        let item_client = get_search_item_client(&search_result_element).await?;
+        debug!("client: '{}'", item_client);
 
-        let category = get_search_item_category(&element).await?;
-        debug!("category: '{}'", category);
+        let item_category = get_search_item_category(&search_result_element).await?;
+        debug!("category: '{}'", item_category);
 
-        let username = get_search_item_login(&element, ).await?;
-        debug!("username: '{}'", username);
+        let item_login = get_search_item_login(&search_result_element, ).await?;
+        debug!("username: '{}'", item_login);
 
-        if username == login && client == account_client && category == account_category {
-            let actions_block = element.find(By::ClassName("account-actions")).await?;
-
-            let more_actions = actions_block.find(By::Tag("button")).await?;
-            more_actions.click().await?;
+        if item_login == account_login && item_client == account_client && item_category == account_category {
+            debug!("going to account edit page");
+            go_to_account_edit_page(&search_result_element).await?;
 
             thread::sleep(Duration::from_millis(300));
 
-            let menu = element.find(By::ClassName("mdl-menu__container")).await?;
+            let menu = search_result_element.find(By::ClassName("mdl-menu__container")).await?;
 
             let menu_items = menu.find_all(By::ClassName("btn-action")).await?;
 
@@ -148,6 +146,15 @@ pub async fn set_permissions_for_account(
             break;
         }
     }
+
+    Ok(())
+}
+
+pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
+    let actions_block = element.find(By::ClassName("account-actions")).await?;
+
+    let more_actions = actions_block.find(By::Tag("button")).await?;
+    more_actions.click().await?;
 
     Ok(())
 }
