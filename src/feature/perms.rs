@@ -20,7 +20,8 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
 
     let xml_config = get_xml_config_from_file(xml_file)?;
 
-    relogin_if_required(&driver, &config).await?;
+    login_to_syspass(&driver, &config.syspass_url,
+                     &config.auth.login, &config.auth.password).await?;
 
     info!("user '{}' logged to syspass", &config.auth.login);
 

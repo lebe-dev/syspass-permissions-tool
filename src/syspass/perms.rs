@@ -127,21 +127,25 @@ pub async fn set_secondary_properties(permission_panel: &WebElement, permissions
 
     if form_rows.len() >= 6 {
 
-        let owner_row = form_rows.get(2)
-            .expect("unexpected error");
-        info!("set owner");
-        set_additional_property_value(&owner_row, &permissions.owner).await?;
+        if !&permissions.owner.is_empty() {
+            let owner_row = form_rows.get(2)
+                .expect("unexpected error");
+            info!("set owner");
+            set_additional_property_value(&owner_row, &permissions.owner).await?;
+        }
 
         click_for_close_element.click().await?;
 
-        let main_group_row = form_rows.get(3)
-            .expect("unexpected error");
-        info!("set main group");
-        set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+        if !&permissions.main_group.is_empty() {
+            let main_group_row = form_rows.get(3)
+                .expect("unexpected error");
+            info!("set main group");
+            set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+        }
 
         let private_account_switch = form_rows.get(4)
             .expect("unexpected error");
-        debug!("check if 'private account option' enabled");
+        debug!("check if 'private account' option enabled");
         let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
 
         if permissions.private_account != private_account_switch_status {
@@ -183,25 +187,25 @@ pub async fn set_permissions_for_security_entities(perm_inputs: &Vec<WebElement>
                                                    permissions: &PermissionsConfig,
                                                    click_for_close_element: &WebElement) -> EmptyResult {
     info!("add user view permissions");
-    set_permissions_for_security_entity(&perm_inputs, 0,
+    set_permissions_for_security_entity("other_users_view-selectized", &perm_inputs, 0,
                                         &permissions.user.view).await?;
 
     click_for_close_element.click().await?;
 
     info!("add user edit permissions");
-    set_permissions_for_security_entity(&perm_inputs, 1,
+    set_permissions_for_security_entity("other_users_edit-selectized", &perm_inputs, 1,
                                         &permissions.user.edit).await?;
 
     click_for_close_element.click().await?;
 
     info!("add group view permissions");
-    set_permissions_for_security_entity(&perm_inputs, 2,
+    set_permissions_for_security_entity("other_usergroups_view-selectized", &perm_inputs, 2,
                                         &permissions.group.view).await?;
 
     click_for_close_element.click().await?;
 
     info!("add group edit permissions");
-    set_permissions_for_security_entity(&perm_inputs, 3,
+    set_permissions_for_security_entity("other_usergroups_edit-selectized", &perm_inputs, 3,
                                         &permissions.group.edit).await?;
 
     click_for_close_element.click().await?;
@@ -209,7 +213,7 @@ pub async fn set_permissions_for_security_entities(perm_inputs: &Vec<WebElement>
     Ok(())
 }
 
-pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
+pub async fn set_permissions_for_security_entity(input_id: &str, perm_inputs: &Vec<WebElement>,
                                                  perm_input_index: usize,
                                                  permissions: &Vec<String>) -> EmptyResult {
     debug!("set permissions for security entity: {:?}", permissions);
@@ -218,29 +222,16 @@ pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
 
         match perm_inputs.get(perm_input_index) {
             Some(perms_input) => {
-                perms_input.click().await?;
 
-                let current_perms = perms_input.find_all(By::ClassName("remove")).await?;
-                for current_perm in current_perms {
-                    current_perm.click().await?;
-                }
-                debug!("current permissions have been removed");
+                let input = perms_input.find(By::Id(input_id)).await?;
 
                 for permission in permissions {
                     info!("- add '{}'", permission);
-                    let options = perms_input.find_all(By::ClassName("option")).await?;
 
-                    for option in options {
-                        let text = option.text().await?;
-
-                        if &text == permission {
-                            info!("- add '{}' - success", permission);
-                            option.click().await?;
-                        }
-                    }
+                    input.send_keys(permission.to_string() + Key::Enter + Key::Escape).await?;
+                    thread::sleep(Duration::from_millis(500));
+                    input.send_keys("" + Key::Escape).await?;
                 }
-
-                perms_input.click().await?;
 
                 Ok(())
             }
