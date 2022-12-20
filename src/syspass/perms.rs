@@ -63,40 +63,8 @@ pub async fn set_permissions_for_account(
             set_permissions_for_security_entities(&perm_inputs, permissions, &click_for_close_element).await?;
 
             let permission_panel = driver.find(By::Id("permission-panel")).await?;
-            let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
 
-            info!("form rows: {}", form_rows.len());
-
-            let owner_row = form_rows.get(2).unwrap();
-            info!("set owner");
-            set_additional_property_value(&owner_row, &permissions.owner).await?;
-
-            click_for_close_element.click().await?;
-
-            let main_group_row = form_rows.get(3).unwrap();
-            info!("set main group");
-            set_additional_property_value(&main_group_row, &permissions.main_group).await?;
-
-            let private_account_switch = form_rows.get(4).unwrap();
-            debug!("check if 'private account option' enabled");
-            let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
-
-            if permissions.private_account != private_account_switch_status {
-                let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
-                option_switch.click().await?;
-            }
-
-            let private_account_for_group_switch = form_rows.get(5).unwrap();
-            debug!("check if 'private account for group' option enabled");
-            let private_account_for_group_switch_status = is_checkbox_enabled(
-                private_account_for_group_switch).await?;
-
-            if permissions.private_account_for_group != private_account_for_group_switch_status {
-                let option_switch = private_account_for_group_switch.find(
-                    By::ClassName("mdl-switch")
-                ).await?;
-                option_switch.click().await?;
-            }
+            set_secondary_properties(&permission_panel, &permissions, &click_for_close_element).await?;
 
             let save_button = permission_panel.find(By::Id("1")).await?;
             save_button.click().await?;
@@ -151,6 +119,46 @@ pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
             Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
         }
     }
+}
+
+pub async fn set_secondary_properties(permission_panel: &WebElement, permissions: &PermissionsConfig,
+                                      click_for_close_element: &WebElement) -> EmptyResult {
+    let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
+
+    info!("form rows: {}", form_rows.len());
+
+    let owner_row = form_rows.get(2).unwrap();
+    info!("set owner");
+    set_additional_property_value(&owner_row, &permissions.owner).await?;
+
+    click_for_close_element.click().await?;
+
+    let main_group_row = form_rows.get(3).unwrap();
+    info!("set main group");
+    set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+
+    let private_account_switch = form_rows.get(4).unwrap();
+    debug!("check if 'private account option' enabled");
+    let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+
+    if permissions.private_account != private_account_switch_status {
+        let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+        option_switch.click().await?;
+    }
+
+    let private_account_for_group_switch = form_rows.get(5).unwrap();
+    debug!("check if 'private account for group' option enabled");
+    let private_account_for_group_switch_status = is_checkbox_enabled(
+        private_account_for_group_switch).await?;
+
+    if permissions.private_account_for_group != private_account_for_group_switch_status {
+        let option_switch = private_account_for_group_switch.find(
+            By::ClassName("mdl-switch")
+        ).await?;
+        option_switch.click().await?;
+    }
+
+    Ok(())
 }
 
 pub async fn is_checkbox_enabled(element: &WebElement) -> OperationResult<bool> {
