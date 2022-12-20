@@ -5,6 +5,7 @@ use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
 use crate::config::PermissionsConfig;
+use crate::syspass::search::get_search_item_category;
 use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account(
@@ -37,10 +38,7 @@ pub async fn set_permissions_for_account(
 
         //
 
-        let category_element = element.find(By::ClassName("field-category")).await?;
-        let category_text_element = category_element.find(By::ClassName("field-text")).await?;
-        let category_text = category_text_element.text().await?;
-        let category = category_text.trim();
+        let category = get_search_item_category(&element).await?;
 
         //
 
