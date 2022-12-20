@@ -2,19 +2,16 @@ use std::path::Path;
 use std::process::exit;
 
 use clap::{Arg, ArgAction, Command};
-use log::{error, info};
-use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::load_config_from_file;
+use crate::feature::perms::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
-use crate::syspass::login::login_to_syspass;
-use crate::syspass::perms::set_permissions_for_account_in_syspass;
-use crate::xml::get_xml_config_from_file;
 
 pub mod config;
 pub mod types;
 pub mod logging;
 pub mod xml;
+pub mod feature;
 pub mod syspass;
 
 #[cfg(test)]
@@ -72,62 +69,10 @@ async fn main() {
                         match load_config_from_file(config_file) {
                             Ok(config) => {
 
-                                let caps = DesiredCapabilities::chrome();
-                                match WebDriver::new(&config.webdriver_url, caps).await {
-                                    Ok(driver) => {
-                                        match login_to_syspass(&driver, &config.syspass_url,
-                                               &config.auth.login, &config.auth.password).await {
-                                            Ok(_) => {
-                                                println!("user '{}' logged to syspass", &config.auth.login);
-
-                                                match get_xml_config_from_file(xml_file) {
-                                                    Ok(xml_config) => {
-
-                                                        for account in xml_config.accounts {
-                                                            let client_found = xml_config.clients.iter().find(|client|client.id == account.client_id);
-
-                                                            match client_found {
-                                                                Some(client) => {
-
-                                                                    let category_found = xml_config.categories.iter().find(|category| category.id == account.category_id);
-
-                                                                    match category_found {
-                                                                        Some(category) => {
-                                                                            match set_permissions_for_account_in_syspass(
-                                                                                &driver, &config.syspass_url,
-                                                                                &account.login, &client.name, &category.name, &config.permissions
-                                                                            ).await {
-                                                                                Ok(_) => info!("permissions have been set for account login '{}'", account.login),
-                                                                                Err(e) => {
-                                                                                    error!("{}", e);
-                                                                                    error!("couldn't find account '{}', skip", account.login)
-                                                                                },
-                                                                            }
-                                                                        }
-                                                                        None => error!("account configuration error, client wasn't found by id {}", account.category_id)
-                                                                    }
-
-                                                                }
-                                                                None => error!("account configuration error, client wasn't found by id {}", account.client_id)
-                                                            }
-
-                                                        }
-
-                                                    }
-                                                    Err(e) => {
-                                                        eprintln!("read xml error: {}", e.root_cause());
-                                                        exit(EXIT_CODE_ERROR)
-                                                    }
-                                                }
-                                            }
-                                            Err(_) => {
-                                                eprintln!("syspass auth error");
-                                                exit(EXIT_CODE_ERROR)
-                                            }
-                                        }
-                                    }
+                                match set_permissions_for_accounts_in_syspass(&config, xml_file).await {
+                                    Ok(_) => println!("complete"),
                                     Err(e) => {
-                                        eprintln!("webdriver error: {}", e);
+                                        eprintln!("error: {}", e.root_cause());
                                         exit(EXIT_CODE_ERROR)
                                     }
                                 }

@@ -7,7 +7,7 @@ use thirtyfour::{By, Key, WebDriver, WebElement};
 use crate::config::PermissionsConfig;
 use crate::types::{EmptyResult, OperationResult};
 
-pub async fn set_permissions_for_account_in_syspass(
+pub async fn set_permissions_for_account(
     driver: &WebDriver, syspass_base_url: &str, login: &str,
     account_client: &str, account_category: &str,
     permissions: &PermissionsConfig) -> EmptyResult {
