@@ -4,7 +4,7 @@ Manage permissions for [sysPass](https://github.com/nuxsmin/sysPass) accounts.
 
 ## Features
 
-1. Set permissions for accounts (WIP, Almost done)
+1. Set permissions for accounts
 
 ## Why?
 
