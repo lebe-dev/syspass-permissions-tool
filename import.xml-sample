@@ -7,18 +7,26 @@
         <User id="1">admin</User>
         <Group id="1">Admins</Group>
         <Hash sign="9e971d659816a7dd325e4c75f97c9853605be53db81b514f90103757a61af51b">
-            b5141af49246795c42e74012c19dab36974708be
+            b5141af49246795c42e740f2c19dab36978708be
         </Hash>
     </Meta>
     <Categories>
         <Category id="1">
-            <name>APP</name>
+            <name>Turtles Corp</name>
+            <description/>
+        </Category>
+        <Category id="2">
+            <name>Frogs Ltd</name>
             <description/>
         </Category>
     </Categories>
     <Clients>
         <Client id="1">
             <name>BirchStore</name>
+            <description/>
+        </Client>
+        <Client id="2">
+            <name>AppStore</name>
             <description/>
         </Client>
     </Clients>
@@ -33,13 +41,11 @@
     <Accounts>
         <Account id="1">
             <name>Ivan Petrov</name>
-            <clientId>1</clientId>
-            <categoryId>1</categoryId>
+            <clientId>2</clientId>
+            <categoryId>2</categoryId>
             <login>i.petrov</login>
             <url>https://app.internal.company.ru:5555/app/</url>
-            <notes>
-                i.petrov@company.ru
-            </notes>
+            <notes>i.petrov@company.ru</notes>
             <pass>v23t8nv2u394tyd</pass>
             <key/>
             <tags>
@@ -48,14 +54,12 @@
             </tags>
         </Account>
         <Account id="2">
-            <name>Абрамова Нина Эдуардовна</name>
+            <name>Abramova Nina</name>
             <clientId>1</clientId>
             <categoryId>1</categoryId>
             <login>n.abramova</login>
             <url>https://stage.internal.company.ru</url>
-            <notes>
-                n.abramova@somecompany.ru
-            </notes>
+            <notes>n.abramova@somecompany.ru</notes>
             <pass>v35n8t39485tg</pass>
             <key/>
             <tags>
