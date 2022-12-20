@@ -20,8 +20,7 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
 
     let xml_config = get_xml_config_from_file(xml_file)?;
 
-    login_to_syspass(&driver, &config.syspass_url,
-                     &config.auth.login, &config.auth.password).await?;
+    relogin_if_required(&driver, &config).await?;
 
     info!("user '{}' logged to syspass", &config.auth.login);
 
@@ -44,13 +43,7 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
                 match category_found {
                     Some(category) => {
 
-                        let login_forms = driver.find_all(By::Id("frmLogin")).await?;
-
-                        if !login_forms.is_empty() {
-                            info!("relogin..");
-                            login_to_syspass(&driver, &config.syspass_url,
-                                             &config.auth.login, &config.auth.password).await?;
-                        }
+                        relogin_if_required(&driver, &config).await?;
 
                         match set_permissions_for_account(
                             &config, &driver,
@@ -99,4 +92,16 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
         }
     }
 
+}
+
+async fn relogin_if_required(driver: &WebDriver, config: &AppConfig) -> EmptyResult {
+    let login_forms = driver.find_all(By::Id("frmLogin")).await?;
+
+    if !login_forms.is_empty() {
+        info!("relogin..");
+        login_to_syspass(&driver, &config.syspass_url,
+                         &config.auth.login, &config.auth.password).await?;
+    }
+
+    Ok(())
 }
