@@ -14,3 +14,10 @@ pub async fn get_search_item_client(element: &WebElement) -> OperationResult<Str
     let client_text = client_element.text().await?;
     Ok(client_text.trim().to_string())
 }
+
+pub async fn get_search_item_login(element: &WebElement) -> OperationResult<String> {
+    let user_field = element.find(By::ClassName("field-user")).await?;
+    let username_field = user_field.find(By::ClassName("field-text")).await?;
+    let username = username_field.text().await?;
+    Ok(username.trim().to_string())
+}

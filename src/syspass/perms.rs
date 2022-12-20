@@ -5,7 +5,7 @@ use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
 use crate::config::PermissionsConfig;
-use crate::syspass::search::{get_search_item_category, get_search_item_client};
+use crate::syspass::search::{get_search_item_category, get_search_item_client, get_search_item_login};
 use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account(
@@ -31,14 +31,13 @@ pub async fn set_permissions_for_account(
 
     for element in elements {
         let client = get_search_item_client(&element).await?;
+        debug!("client: '{}'", client);
+
         let category = get_search_item_category(&element).await?;
+        debug!("category: '{}'", category);
 
-        let user_field = element.find(By::ClassName("field-user")).await?;
-        let username_field = user_field.find(By::ClassName("field-text")).await?;
-
-        let username = username_field.text().await?;
-        let username_trimmed = username.trim();
-        debug!("username: '{}'", username_trimmed);
+        let username = get_search_item_login(&element, ).await?;
+        debug!("username: '{}'", username);
 
         if username == login && client == account_client && category == account_category {
             let actions_block = element.find(By::ClassName("account-actions")).await?;
