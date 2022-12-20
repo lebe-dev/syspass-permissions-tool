@@ -216,33 +216,46 @@ pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
     debug!("set permissions for security entity: {:?}", permissions);
 
     if !permissions.is_empty() {
-        let perms_input = perm_inputs.get(perm_input_index).unwrap();
-        perms_input.click().await?;
 
-        let current_perms = perms_input.find_all(By::ClassName("remove")).await?;
-        for current_perm in current_perms {
-            current_perm.click().await?;
-        }
-        debug!("current permissions have been removed");
+        match perm_inputs.get(perm_input_index) {
+            Some(perms_input) => {
+                perms_input.click().await?;
 
-        for permission in permissions {
-            info!("- add '{}'", permission);
-            let options = perms_input.find_all(By::ClassName("option")).await?;
-
-            for option in options {
-                let text = option.text().await?;
-
-                if &text == permission {
-                    info!("- add '{}' - success", permission);
-                    option.click().await?;
+                let current_perms = perms_input.find_all(By::ClassName("remove")).await?;
+                for current_perm in current_perms {
+                    current_perm.click().await?;
                 }
+                debug!("current permissions have been removed");
+
+                for permission in permissions {
+                    info!("- add '{}'", permission);
+                    let options = perms_input.find_all(By::ClassName("option")).await?;
+
+                    for option in options {
+                        let text = option.text().await?;
+
+                        if &text == permission {
+                            info!("- add '{}' - success", permission);
+                            option.click().await?;
+                        }
+                    }
+                }
+
+                perms_input.click().await?;
+
+                Ok(())
+            }
+            None => {
+                error!("couldn't get permissions input by index {}", perm_input_index);
+                Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
             }
         }
 
-        perms_input.click().await?;
+
+    } else {
+        Ok(())
     }
 
-    Ok(())
 }
 
 pub async fn set_additional_property_value(element: &WebElement, value: &str) -> EmptyResult {
