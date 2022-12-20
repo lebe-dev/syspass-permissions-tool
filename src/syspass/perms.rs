@@ -67,45 +67,40 @@ pub async fn set_permissions_for_account(
 
                 info!("form rows: {}", form_rows.len());
 
-                if form_rows.len() >= 6 {
-                    let owner_row = form_rows.get(2).unwrap();
-                    info!("set owner");
-                    set_additional_property_value(&owner_row, &permissions.owner).await?;
+                let owner_row = form_rows.get(2).unwrap();
+                info!("set owner");
+                set_additional_property_value(&owner_row, &permissions.owner).await?;
 
-                    click_for_close_element.click().await?;
+                click_for_close_element.click().await?;
 
-                    let main_group_row = form_rows.get(3).unwrap();
-                    info!("set main group");
-                    set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+                let main_group_row = form_rows.get(3).unwrap();
+                info!("set main group");
+                set_additional_property_value(&main_group_row, &permissions.main_group).await?;
 
-                    let private_account_switch = form_rows.get(4).unwrap();
-                    debug!("check if 'private account option' enabled");
-                    let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+                let private_account_switch = form_rows.get(4).unwrap();
+                debug!("check if 'private account option' enabled");
+                let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
 
-                    if permissions.private_account != private_account_switch_status {
-                        let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
-                        option_switch.click().await?;
-                    }
-
-                    let private_account_for_group_switch = form_rows.get(5).unwrap();
-                    debug!("check if 'private account for group' option enabled");
-                    let private_account_for_group_switch_status = is_checkbox_enabled(private_account_for_group_switch).await?;
-
-                    if permissions.private_account_for_group != private_account_for_group_switch_status {
-                        let option_switch = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
-                        option_switch.click().await?;
-                    }
-
-                    let save_button = permission_panel.find(By::Id("1")).await?;
-                    save_button.click().await?;
-                    info!("settings have been saved");
-
-                    driver.goto(&url).await?;
-                    debug!("returned to index page");
-
-                } else {
-                    error!("unsupported syspass ui version, at least six form rows expected")
+                if permissions.private_account != private_account_switch_status {
+                    let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+                    option_switch.click().await?;
                 }
+
+                let private_account_for_group_switch = form_rows.get(5).unwrap();
+                debug!("check if 'private account for group' option enabled");
+                let private_account_for_group_switch_status = is_checkbox_enabled(private_account_for_group_switch).await?;
+
+                if permissions.private_account_for_group != private_account_for_group_switch_status {
+                    let option_switch = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
+                    option_switch.click().await?;
+                }
+
+                let save_button = permission_panel.find(By::Id("1")).await?;
+                save_button.click().await?;
+                info!("settings have been saved");
+
+                driver.goto(&url).await?;
+                debug!("returned to index page");
 
             } else {
                 error!("unsupported syspass ui version, 4 divs expected with class 'tag-list-box'")
