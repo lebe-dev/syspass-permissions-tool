@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::Path;
 
@@ -30,6 +31,13 @@ pub struct Account {
     pub client_id: u16,
     pub category_id: u16,
     pub login: String
+}
+
+impl Display for Account {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<Account>id {}, name '{}', login '{}', client-id {}, category-id {}</Account>",
+               self.id, self.name, self.login, self.client_id, self.category_id)
+    }
 }
 
 pub const UNINITIALIZED_ID_VALUE: u16 = 12345;

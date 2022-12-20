@@ -31,6 +31,7 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
     let mut has_errors = false;
 
     for account in xml_config.accounts {
+        info!("processing account '{}'", account);
         let client_found = xml_config.clients.iter()
             .find(|client|client.id == account.client_id);
 
