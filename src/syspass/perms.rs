@@ -1,11 +1,13 @@
 use std::thread;
 use std::time::Duration;
 
+use anyhow::anyhow;
 use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
 use crate::config::PermissionsConfig;
 use crate::syspass::search::{get_search_item_category, get_search_item_client, get_search_item_login};
+use crate::syspass::UNSUPPORTED_UI_VERSION_ERROR;
 use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account(
@@ -127,11 +129,16 @@ pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
 
     let menu_items = menu.find_all(By::ClassName("btn-action")).await?;
 
-    let edit_item = menu_items.first().unwrap();
-
-    edit_item.click().await?;
-
-    Ok(())
+    match menu_items.first() {
+        Some(edit_item) => {
+            edit_item.click().await?;
+            Ok(())
+        }
+        None => {
+            error!("couldn't find 'btn-action' element inside 'mdl-menu__container'");
+            Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
+        }
+    }
 }
 
 pub async fn is_checkbox_enabled(element: &WebElement) -> OperationResult<bool> {
