@@ -49,7 +49,7 @@ pub async fn set_permissions_for_account(config: &AppConfig,
 
             go_to_account_edit_page(&search_result_element).await?;
 
-            thread::sleep(Duration::new(1, 0));
+            thread::sleep(Duration::from_millis(config.delays.after_redirect_to_edit));
 
             open_permissions_tab(&driver).await?;
 

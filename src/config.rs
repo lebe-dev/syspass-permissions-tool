@@ -96,6 +96,10 @@ pub struct DelaysConfig {
     #[serde(rename(deserialize = "after-redirect-to-index"))]
     pub after_redirect_to_index: u64,
 
+    /// Delay after redirect to edit page
+    #[serde(rename(deserialize = "after-redirect-to-edit"))]
+    pub after_redirect_to_edit: u64,
+
     /// Delay after search
     #[serde(rename(deserialize = "after-search"))]
     pub after_search: u64,
@@ -110,6 +114,7 @@ impl Display for DelaysConfig {
         write!(f, "<Delays>")?;
         write!(f, "after-login: {} (ms)", self.after_login)?;
         write!(f, "after-redirect-to-index: {} (ms)", self.after_redirect_to_index)?;
+        write!(f, "after-redirect-to-edit: {} (ms)", self.after_redirect_to_edit)?;
         write!(f, "after-search: {} (ms)", self.after_search)?;
         write!(f, "menu-open: {} (ms)", self.menu_open)?;
         write!(f, "</Delays>")
@@ -173,6 +178,7 @@ mod tests {
             delays: DelaysConfig {
                 after_login: 300,
                 after_redirect_to_index: 500,
+                after_redirect_to_edit: 500,
                 after_search: 500,
                 menu_open: 300,
             }
