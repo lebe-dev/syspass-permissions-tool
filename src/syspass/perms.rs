@@ -41,85 +41,74 @@ pub async fn set_permissions_for_account(
 
         if item_login == account_login && item_client == account_client && item_category == account_category {
             debug!("going to account edit page");
-            go_to_account_edit_page(&search_result_element).await?;
+            open_account_actions_menu(&search_result_element).await?;
 
             thread::sleep(Duration::from_millis(300));
 
-            let menu = search_result_element.find(By::ClassName("mdl-menu__container")).await?;
-
-            let menu_items = menu.find_all(By::ClassName("btn-action")).await?;
-
-            let edit_item = menu_items.first().unwrap();
-
-            edit_item.click().await?;
+            go_to_account_edit_page(&search_result_element).await?;
 
             thread::sleep(Duration::new(1, 0));
 
             let tabs = driver.find_all(By::ClassName("mdl-tabs__tab")).await?;
 
-            if tabs.len() == 3 {
-                let perms_tab = tabs.get(1).unwrap();
-                perms_tab.click().await?;
+            let perms_tab = tabs.get(1).unwrap();
+            perms_tab.click().await?;
 
-                let click_for_close_element = driver.find(By::Id("frmAccount")).await?;
+            let click_for_close_element = driver.find(By::Id("frmAccount")).await?;
 
-                let perm_inputs = driver.find_all(By::ClassName("tag-list-box")).await?;
+            let perm_inputs = driver.find_all(By::ClassName("tag-list-box")).await?;
 
-                if perm_inputs.len() == 4 {
+            if perm_inputs.len() == 4 {
 
-                    set_permissions_for_security_entities(&perm_inputs, permissions, &click_for_close_element).await?;
+                set_permissions_for_security_entities(&perm_inputs, permissions, &click_for_close_element).await?;
 
-                    let permission_panel = driver.find(By::Id("permission-panel")).await?;
-                    let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
+                let permission_panel = driver.find(By::Id("permission-panel")).await?;
+                let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
 
-                    info!("form rows: {}", form_rows.len());
+                info!("form rows: {}", form_rows.len());
 
-                    if form_rows.len() >= 6 {
-                        let owner_row = form_rows.get(2).unwrap();
-                        info!("set owner");
-                        set_additional_property_value(&owner_row, &permissions.owner).await?;
+                if form_rows.len() >= 6 {
+                    let owner_row = form_rows.get(2).unwrap();
+                    info!("set owner");
+                    set_additional_property_value(&owner_row, &permissions.owner).await?;
 
-                        click_for_close_element.click().await?;
+                    click_for_close_element.click().await?;
 
-                        let main_group_row = form_rows.get(3).unwrap();
-                        info!("set main group");
-                        set_additional_property_value(&main_group_row, &permissions.main_group).await?;
+                    let main_group_row = form_rows.get(3).unwrap();
+                    info!("set main group");
+                    set_additional_property_value(&main_group_row, &permissions.main_group).await?;
 
-                        let private_account_switch = form_rows.get(4).unwrap();
-                        debug!("check if 'private account option' enabled");
-                        let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+                    let private_account_switch = form_rows.get(4).unwrap();
+                    debug!("check if 'private account option' enabled");
+                    let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
 
-                        if permissions.private_account != private_account_switch_status {
-                            let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
-                            option_switch.click().await?;
-                        }
-
-                        let private_account_for_group_switch = form_rows.get(5).unwrap();
-                        debug!("check if 'private account for group' option enabled");
-                        let private_account_for_group_switch_status = is_checkbox_enabled(private_account_for_group_switch).await?;
-
-                        if permissions.private_account_for_group != private_account_for_group_switch_status {
-                            let option_switch = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
-                            option_switch.click().await?;
-                        }
-
-                        let save_button = permission_panel.find(By::Id("1")).await?;
-                        save_button.click().await?;
-                        info!("settings have been saved");
-
-                        driver.goto(&url).await?;
-                        debug!("returned to index page");
-
-                    } else {
-                        error!("unsupported syspass ui version, at least six form rows expected")
+                    if permissions.private_account != private_account_switch_status {
+                        let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+                        option_switch.click().await?;
                     }
 
+                    let private_account_for_group_switch = form_rows.get(5).unwrap();
+                    debug!("check if 'private account for group' option enabled");
+                    let private_account_for_group_switch_status = is_checkbox_enabled(private_account_for_group_switch).await?;
+
+                    if permissions.private_account_for_group != private_account_for_group_switch_status {
+                        let option_switch = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
+                        option_switch.click().await?;
+                    }
+
+                    let save_button = permission_panel.find(By::Id("1")).await?;
+                    save_button.click().await?;
+                    info!("settings have been saved");
+
+                    driver.goto(&url).await?;
+                    debug!("returned to index page");
+
                 } else {
-                    error!("unsupported syspass ui version, 4 divs expected with class 'tag-list-box'")
+                    error!("unsupported syspass ui version, at least six form rows expected")
                 }
 
             } else {
-                error!("unsupported syspass ui version, 3 tabs expected")
+                error!("unsupported syspass ui version, 4 divs expected with class 'tag-list-box'")
             }
 
             break;
@@ -129,11 +118,23 @@ pub async fn set_permissions_for_account(
     Ok(())
 }
 
-pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
+pub async fn open_account_actions_menu(element: &WebElement) -> EmptyResult {
     let actions_block = element.find(By::ClassName("account-actions")).await?;
 
     let more_actions = actions_block.find(By::Tag("button")).await?;
     more_actions.click().await?;
+
+    Ok(())
+}
+
+pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
+    let menu = element.find(By::ClassName("mdl-menu__container")).await?;
+
+    let menu_items = menu.find_all(By::ClassName("btn-action")).await?;
+
+    let edit_item = menu_items.first().unwrap();
+
+    edit_item.click().await?;
 
     Ok(())
 }
