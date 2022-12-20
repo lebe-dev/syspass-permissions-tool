@@ -1,7 +1,9 @@
 use std::path::Path;
+use std::thread;
+use std::time::Duration;
 
 use anyhow::anyhow;
-use log::{error, info};
+use log::{debug, error, info};
 use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::AppConfig;
@@ -23,6 +25,9 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
 
     info!("user '{}' logged to syspass", &config.auth.login);
 
+    debug!("wait after login redirect {} ms", config.delays.after_login);
+    thread::sleep(Duration::from_millis(config.delays.after_login));
+
     let mut has_errors = false;
 
     for account in xml_config.accounts {
@@ -33,7 +38,7 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
             Some(client) => {
 
                 let category_found = xml_config.categories.iter()
-                    .find(|category| category.id == account.category_id);
+                                .find(|category| category.id == account.category_id);
 
                 match category_found {
                     Some(category) => {
