@@ -5,7 +5,7 @@ use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
 use crate::config::PermissionsConfig;
-use crate::syspass::search::get_search_item_category;
+use crate::syspass::search::{get_search_item_category, get_search_item_client};
 use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account(
@@ -30,20 +30,10 @@ pub async fn set_permissions_for_account(
     let elements = driver.find_all(By::ClassName("account-label")).await?;
 
     for element in elements {
-
-        let client_element = element.find(By::ClassName("mdl-chip__text")).await?;
-
-        let client_text = client_element.text().await?;
-        let client = client_text.trim();
-
-        //
-
+        let client = get_search_item_client(&element).await?;
         let category = get_search_item_category(&element).await?;
 
-        //
-
         let user_field = element.find(By::ClassName("field-user")).await?;
-
         let username_field = user_field.find(By::ClassName("field-text")).await?;
 
         let username = username_field.text().await?;
