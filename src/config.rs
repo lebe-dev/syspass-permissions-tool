@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::Path;
 
@@ -22,10 +23,27 @@ pub struct AppConfig {
     pub permissions: PermissionsConfig
 }
 
+impl Display for AppConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<AppConfig>")?;
+        write!(f, "syspass-url: '{}', webdriver-url: '{}', ", self.syspass_url, self.webdriver_url)?;
+        write!(f, "ignore-errors: {}, ", self.ignore_errors)?;
+        write!(f, "auth: {}", self.auth)?;
+        write!(f, "permissions: {}", self.permissions)?;
+        write!(f, "</AppConfig>")
+    }
+}
+
 #[derive(Deserialize,PartialEq,Debug)]
 pub struct AuthConfig {
     pub login: String,
     pub password: String,
+}
+
+impl Display for AuthConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "login: '{}', password: '*********'", self.login)
+    }
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
@@ -43,6 +61,19 @@ pub struct PermissionsConfig {
 
     #[serde(rename(deserialize = "private-account-for-group"))]
     pub private_account_for_group: bool
+}
+
+impl Display for PermissionsConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<PermissionsConfig>")?;
+        write!(f, "user: {:?}, ", self.user)?;
+        write!(f, "group: {:?}, ", self.group)?;
+        write!(f, "owner: '{}', ", self.owner)?;
+        write!(f, "main-group: '{}', ", self.main_group)?;
+        write!(f, "private-account: {}, ", self.private_account)?;
+        write!(f, "private-account-for-group: {}, ", self.private_account_for_group)?;
+        write!(f, "</PermissionsConfig>")
+    }
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
