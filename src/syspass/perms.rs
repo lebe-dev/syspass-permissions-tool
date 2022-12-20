@@ -66,29 +66,8 @@ pub async fn set_permissions_for_account(
                 let perm_inputs = driver.find_all(By::ClassName("tag-list-box")).await?;
 
                 if perm_inputs.len() == 4 {
-                    info!("add user view permissions");
-                    set_permissions_for_security_entity(&perm_inputs, 0,
-                                                        &permissions.user.view).await?;
 
-                    click_for_close_element.click().await?;
-
-                    info!("add user edit permissions");
-                    set_permissions_for_security_entity(&perm_inputs, 1,
-                                                        &permissions.user.edit).await?;
-
-                    click_for_close_element.click().await?;
-
-                    info!("add group view permissions");
-                    set_permissions_for_security_entity(&perm_inputs, 2,
-                                                        &permissions.group.view).await?;
-
-                    click_for_close_element.click().await?;
-
-                    info!("add group edit permissions");
-                    set_permissions_for_security_entity(&perm_inputs, 3,
-                                                        &permissions.group.edit).await?;
-
-                    click_for_close_element.click().await?;
+                    set_permissions_for_security_entities(&perm_inputs, permissions, &click_for_close_element).await?;
 
                     let permission_panel = driver.find(By::Id("permission-panel")).await?;
                     let form_rows = permission_panel.find_all(By::Tag("tr")).await?;
@@ -166,6 +145,36 @@ pub async fn is_checkbox_enabled(element: &WebElement) -> OperationResult<bool> 
     debug!("checkbox enabled: {}", status);
 
     Ok(status)
+}
+
+pub async fn set_permissions_for_security_entities(perm_inputs: &Vec<WebElement>,
+                                                   permissions: &PermissionsConfig,
+                                                   click_for_close_element: &WebElement) -> EmptyResult {
+    info!("add user view permissions");
+    set_permissions_for_security_entity(&perm_inputs, 0,
+                                        &permissions.user.view).await?;
+
+    click_for_close_element.click().await?;
+
+    info!("add user edit permissions");
+    set_permissions_for_security_entity(&perm_inputs, 1,
+                                        &permissions.user.edit).await?;
+
+    click_for_close_element.click().await?;
+
+    info!("add group view permissions");
+    set_permissions_for_security_entity(&perm_inputs, 2,
+                                        &permissions.group.view).await?;
+
+    click_for_close_element.click().await?;
+
+    info!("add group edit permissions");
+    set_permissions_for_security_entity(&perm_inputs, 3,
+                                        &permissions.group.edit).await?;
+
+    click_for_close_element.click().await?;
+
+    Ok(())
 }
 
 pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
