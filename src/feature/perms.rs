@@ -32,7 +32,8 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
         match client_found {
             Some(client) => {
 
-                let category_found = xml_config.categories.iter().find(|category| category.id == account.category_id);
+                let category_found = xml_config.categories.iter()
+                    .find(|category| category.id == account.category_id);
 
                 match category_found {
                     Some(category) => {
