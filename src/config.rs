@@ -90,13 +90,23 @@ pub struct DelaysConfig {
 
     /// Delay after success login into sysPass
     #[serde(rename(deserialize = "after-login"))]
-    pub after_login: u64
+    pub after_login: u64,
+
+    /// Delay after redirect to index page
+    #[serde(rename(deserialize = "after-redirect-to-index"))]
+    pub after_redirect_to_index: u64,
+
+    /// Delay after search
+    #[serde(rename(deserialize = "after-search"))]
+    pub after_search: u64
 }
 
 impl Display for DelaysConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "<Delays>")?;
         write!(f, "after-login: {} (ms)", self.after_login)?;
+        write!(f, "after-redirect-to-index: {} (ms)", self.after_redirect_to_index)?;
+        write!(f, "after-search: {} (ms)", self.after_search)?;
         write!(f, "</Delays>")
     }
 }
@@ -157,6 +167,8 @@ mod tests {
             },
             delays: DelaysConfig {
                 after_login: 300,
+                after_redirect_to_index: 500,
+                after_search: 500,
             }
         };
 

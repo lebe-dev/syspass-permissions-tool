@@ -35,3 +35,5 @@ permissions:
 # In milliseconds
 delays:
   after-login: 1000
+  after-redirect-to-index: 500
+  after-search: 500

@@ -43,9 +43,9 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
                 match category_found {
                     Some(category) => {
                         match set_permissions_for_account(
-                            &driver, &config.syspass_url,
+                            &config, &driver,
                             &account.login, &client.name,
-                            &category.name, &config.permissions
+                            &category.name
                         ).await {
                             Ok(_) => info!("permissions have been set for account login '{}'", account.login),
                             Err(e) => {

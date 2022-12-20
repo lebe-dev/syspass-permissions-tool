@@ -5,28 +5,27 @@ use anyhow::anyhow;
 use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
-use crate::config::PermissionsConfig;
+use crate::config::{AppConfig, PermissionsConfig};
 use crate::syspass::search::{get_search_item_category, get_search_item_client, get_search_item_login};
 use crate::syspass::UNSUPPORTED_UI_VERSION_ERROR;
 use crate::types::{EmptyResult, OperationResult};
 
-pub async fn set_permissions_for_account(
-    driver: &WebDriver, syspass_base_url: &str, account_login: &str,
-    account_client: &str, account_category: &str,
-    permissions: &PermissionsConfig) -> EmptyResult {
+pub async fn set_permissions_for_account(config: &AppConfig,
+    driver: &WebDriver, account_login: &str,
+    account_client: &str, account_category: &str) -> EmptyResult {
     info!("set permissions for syspass account '{}'", account_login);
 
-    let url = format!("{}/index.php?r=index", syspass_base_url);
+    let url = format!("{}/index.php?r=index", &config.syspass_url);
 
     driver.goto(&url).await?;
 
-    thread::sleep(Duration::new(2, 0));
+    thread::sleep(Duration::from_millis(config.delays.after_redirect_to_index));
 
     let search_input = driver.find(By::Id("search")).await?;
     search_input.clear().await?;
     search_input.send_keys(account_login + Key::Enter).await?;
 
-    thread::sleep(Duration::new(1, 0));
+    thread::sleep(Duration::from_millis(config.delays.after_search));
 
     let search_result_elements = driver.find_all(By::ClassName("account-label")).await?;
 
@@ -58,11 +57,11 @@ pub async fn set_permissions_for_account(
 
             let perm_inputs = driver.find_all(By::ClassName("tag-list-box")).await?;
 
-            set_permissions_for_security_entities(&perm_inputs, permissions, &click_for_close_element).await?;
+            set_permissions_for_security_entities(&perm_inputs, &config.permissions, &click_for_close_element).await?;
 
             let permission_panel = driver.find(By::Id("permission-panel")).await?;
 
-            set_secondary_properties(&permission_panel, &permissions, &click_for_close_element).await?;
+            set_secondary_properties(&permission_panel, &config.permissions, &click_for_close_element).await?;
 
             let save_button = permission_panel.find(By::Id("1")).await?;
             save_button.click().await?;
