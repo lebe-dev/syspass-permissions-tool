@@ -2,7 +2,7 @@ use std::path::Path;
 use std::process::exit;
 
 use clap::{Arg, ArgAction, Command};
-use log::error;
+use log::{error, info};
 use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::load_config_from_file;
@@ -84,16 +84,33 @@ async fn main() {
                                                     Ok(xml_config) => {
 
                                                         for account in xml_config.accounts {
-                                                            match set_permissions_for_account_in_syspass(&driver, &config.syspass_url,
-                                                                                                         &account.login, &config.permissions).await {
-                                                                Ok(_) => {
-                                                                    println!("complete");
-                                                                },
-                                                                Err(e) => {
-                                                                    error!("{}", e);
-                                                                    println!("couldn't find account '{}', skip", account.login)
-                                                                },
+                                                            let client_found = xml_config.clients.iter().find(|client|client.id == account.client_id);
+
+                                                            match client_found {
+                                                                Some(client) => {
+
+                                                                    let category_found = xml_config.categories.iter().find(|category| category.id == account.category_id);
+
+                                                                    match category_found {
+                                                                        Some(category) => {
+                                                                            match set_permissions_for_account_in_syspass(
+                                                                                &driver, &config.syspass_url,
+                                                                                &account.login, &client.name, &category.name, &config.permissions
+                                                                            ).await {
+                                                                                Ok(_) => info!("permissions have been set for account login '{}'", account.login),
+                                                                                Err(e) => {
+                                                                                    error!("{}", e);
+                                                                                    error!("couldn't find account '{}', skip", account.login)
+                                                                                },
+                                                                            }
+                                                                        }
+                                                                        None => error!("account configuration error, client wasn't found by id {}", account.category_id)
+                                                                    }
+
+                                                                }
+                                                                None => error!("account configuration error, client wasn't found by id {}", account.client_id)
                                                             }
+
                                                         }
 
                                                     }

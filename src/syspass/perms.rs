@@ -9,6 +9,7 @@ use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account_in_syspass(
     driver: &WebDriver, syspass_base_url: &str, login: &str,
+    account_client: &str, account_category: &str,
     permissions: &PermissionsConfig) -> EmptyResult {
 
     info!("set permissions for syspass account '{}'", login);
@@ -28,6 +29,21 @@ pub async fn set_permissions_for_account_in_syspass(
     let elements = driver.find_all(By::ClassName("account-label")).await?;
 
     for element in elements {
+
+        let client_element = element.find(By::ClassName("mdl-chip__text")).await?;
+
+        let client_text = client_element.text().await?;
+        let client = client_text.trim();
+
+        //
+
+        let category_element = element.find(By::ClassName("field-category")).await?;
+        let category_text_element = category_element.find(By::ClassName("field-text")).await?;
+        let category_text = category_text_element.text().await?;
+        let category = category_text.trim();
+
+        //
+
         let user_field = element.find(By::ClassName("field-user")).await?;
 
         let username_field = user_field.find(By::ClassName("field-text")).await?;
@@ -36,7 +52,7 @@ pub async fn set_permissions_for_account_in_syspass(
         let username_trimmed = username.trim();
         debug!("username: '{}'", username_trimmed);
 
-        if username == login {
+        if username == login && client == account_client && category == account_category {
             let actions_block = element.find(By::ClassName("account-actions")).await?;
 
             let more_actions = actions_block.find(By::Tag("button")).await?;
