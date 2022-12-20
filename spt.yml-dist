@@ -31,3 +31,7 @@ permissions:
 
   private-account: false
   private-account-for-group: false
+
+# In milliseconds
+delays:
+  after-login: 1000

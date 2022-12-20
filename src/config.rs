@@ -20,7 +20,9 @@ pub struct AppConfig {
     #[serde(rename(deserialize = "ignore-errors"))]
     pub ignore_errors: bool,
 
-    pub permissions: PermissionsConfig
+    pub permissions: PermissionsConfig,
+
+    pub delays: DelaysConfig
 }
 
 impl Display for AppConfig {
@@ -30,6 +32,7 @@ impl Display for AppConfig {
         write!(f, "ignore-errors: {}, ", self.ignore_errors)?;
         write!(f, "auth: {}", self.auth)?;
         write!(f, "permissions: {}", self.permissions)?;
+        write!(f, "delays: {}", self.delays)?;
         write!(f, "</AppConfig>")
     }
 }
@@ -82,6 +85,24 @@ pub struct EntityPermissionsConfig {
     pub edit: Vec<String>,
 }
 
+#[derive(Deserialize,PartialEq,Debug)]
+pub struct DelaysConfig {
+
+    /// Delay after success login into sysPass
+    #[serde(rename(deserialize = "after-login"))]
+    pub after_login: u64
+}
+
+impl Display for DelaysConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<Delays>")?;
+        write!(f, "after-login: {} (ms)", self.after_login)?;
+        write!(f, "</Delays>")
+    }
+}
+
+// ---
+
 pub fn load_config_from_file(file_path: &Path) -> OperationResult<AppConfig> {
     info!("load config from file '{}'", file_path.display());
     let content = fs::read_to_string(file_path)?;
@@ -97,7 +118,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{AppConfig, AuthConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
+    use crate::config::{AppConfig, AuthConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -134,6 +155,9 @@ mod tests {
                 private_account: false,
                 private_account_for_group: true
             },
+            delays: DelaysConfig {
+                after_login: 300,
+            }
         };
 
         assert_eq!(config, expected_config);
