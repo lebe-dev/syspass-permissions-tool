@@ -69,7 +69,8 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
         }
 
         if has_errors && !config.ignore_errors {
-            info!("process has been interrupted due error")
+            info!("process has been interrupted due error");
+            break;
         }
 
     }
