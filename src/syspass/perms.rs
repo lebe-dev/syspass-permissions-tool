@@ -143,8 +143,7 @@ pub async fn set_permissions_for_account(
                         save_button.click().await?;
                         info!("settings have been saved");
 
-                        let back_button = permission_panel.find(By::Id("btnBack")).await?;
-                        back_button.click().await?;
+                        driver.goto(&url).await?;
                         debug!("returned to index page");
 
                     } else {
