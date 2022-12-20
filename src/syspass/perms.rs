@@ -123,10 +123,17 @@ pub async fn set_permissions_for_account_in_syspass(
                             option_switch.click().await?;
                         }
 
+                        let save_button = permission_panel.find(By::Id("1")).await?;
+                        save_button.click().await?;
+                        info!("settings have been saved");
+
+                        let back_button = permission_panel.find(By::Id("btnBack")).await?;
+                        back_button.click().await?;
+                        debug!("returned to index page");
+
                     } else {
                         error!("unsupported syspass ui version, at least six form rows expected")
                     }
-
 
                 } else {
                     error!("unsupported syspass ui version, 4 divs expected with class 'tag-list-box'")
