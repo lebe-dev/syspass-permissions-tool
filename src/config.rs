@@ -98,7 +98,11 @@ pub struct DelaysConfig {
 
     /// Delay after search
     #[serde(rename(deserialize = "after-search"))]
-    pub after_search: u64
+    pub after_search: u64,
+
+    /// Delay after menu open
+    #[serde(rename(deserialize = "menu-open"))]
+    pub menu_open: u64
 }
 
 impl Display for DelaysConfig {
@@ -107,6 +111,7 @@ impl Display for DelaysConfig {
         write!(f, "after-login: {} (ms)", self.after_login)?;
         write!(f, "after-redirect-to-index: {} (ms)", self.after_redirect_to_index)?;
         write!(f, "after-search: {} (ms)", self.after_search)?;
+        write!(f, "menu-open: {} (ms)", self.menu_open)?;
         write!(f, "</Delays>")
     }
 }
@@ -169,6 +174,7 @@ mod tests {
                 after_login: 300,
                 after_redirect_to_index: 500,
                 after_search: 500,
+                menu_open: 300,
             }
         };
 

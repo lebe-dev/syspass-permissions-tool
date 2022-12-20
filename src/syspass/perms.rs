@@ -45,7 +45,7 @@ pub async fn set_permissions_for_account(config: &AppConfig,
             debug!("going to account edit page");
             open_account_actions_menu(&search_result_element).await?;
 
-            thread::sleep(Duration::from_millis(300));
+            thread::sleep(Duration::from_millis(config.delays.menu_open));
 
             go_to_account_edit_page(&search_result_element).await?;
 
