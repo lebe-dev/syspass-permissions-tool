@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use anyhow::anyhow;
 use log::{debug, error, info};
-use thirtyfour::{DesiredCapabilities, WebDriver};
+use thirtyfour::{By, DesiredCapabilities, WebDriver};
 
 use crate::config::AppConfig;
 use crate::syspass::login::login_to_syspass;
@@ -43,6 +43,15 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
 
                 match category_found {
                     Some(category) => {
+
+                        let login_forms = driver.find_all(By::Id("frmLogin")).await?;
+
+                        if !login_forms.is_empty() {
+                            info!("relogin..");
+                            login_to_syspass(&driver, &config.syspass_url,
+                                             &config.auth.login, &config.auth.password).await?;
+                        }
+
                         match set_permissions_for_account(
                             &config, &driver,
                             &account.login, &client.name,
