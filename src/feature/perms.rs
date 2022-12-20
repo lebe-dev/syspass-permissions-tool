@@ -14,9 +14,13 @@ use crate::xml::get_xml_config_from_file;
 
 pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
                                                      xml_file: &Path) -> EmptyResult {
-    let caps = DesiredCapabilities::chrome();
+    let mut caps = DesiredCapabilities::chrome();
 
-    let driver = WebDriver::new(&config.webdriver_url, caps).await?;
+    for arg in config.webdriver.args.iter() {
+        caps.add_chrome_arg(&arg)?;
+    }
+
+    let driver = WebDriver::new(&config.webdriver.url, caps).await?;
 
     let xml_config = get_xml_config_from_file(xml_file)?;
 
@@ -30,8 +34,14 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
 
     let mut has_errors = false;
 
-    for account in xml_config.accounts {
-        info!("processing account '{}'", account);
+    let accounts_count = xml_config.accounts.len();
+
+    let separator = "-".repeat(128);
+
+    for (i, account) in xml_config.accounts.iter().enumerate() {
+        info!("{}", separator);
+        info!("PROCESSING '{}' [{}/{}]", account, i, accounts_count);
+        info!("{}", separator);
         let client_found = xml_config.clients.iter()
             .find(|client|client.id == account.client_id);
 

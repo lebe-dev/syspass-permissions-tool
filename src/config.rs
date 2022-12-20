@@ -12,8 +12,7 @@ pub struct AppConfig {
     #[serde(rename(deserialize = "syspass-url"))]
     pub syspass_url: String,
 
-    #[serde(rename(deserialize = "webdriver-url"))]
-    pub webdriver_url: String,
+    pub webdriver: WebDriverConfig,
 
     pub auth: AuthConfig,
 
@@ -28,12 +27,24 @@ pub struct AppConfig {
 impl Display for AppConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "<AppConfig>")?;
-        write!(f, "syspass-url: '{}', webdriver-url: '{}', ", self.syspass_url, self.webdriver_url)?;
+        write!(f, "syspass-url: '{}', webdriver-url: '{}', ", self.syspass_url, self.webdriver)?;
         write!(f, "ignore-errors: {}, ", self.ignore_errors)?;
         write!(f, "auth: {}", self.auth)?;
         write!(f, "permissions: {}", self.permissions)?;
         write!(f, "delays: {}", self.delays)?;
         write!(f, "</AppConfig>")
+    }
+}
+
+#[derive(Deserialize,PartialEq,Debug)]
+pub struct WebDriverConfig {
+    pub url: String,
+    pub args: Vec<String>,
+}
+
+impl Display for WebDriverConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<WebDriverConfig> url '{}', args: '{:?}'</WebDriverConfig>", self.url, self.args)
     }
 }
 
@@ -138,7 +149,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{AppConfig, AuthConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig};
+    use crate::config::{AppConfig, AuthConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig, WebDriverConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -149,7 +160,7 @@ mod tests {
 
         let expected_config = AppConfig {
             syspass_url: "http://localhost:18080".to_string(),
-            webdriver_url: "http://localhost:9515".to_string(),
+
             auth: AuthConfig {
                 login: "b2y63nu46n456".to_string(),
                 password: "2b34t45ynn968m".to_string(),
@@ -181,7 +192,13 @@ mod tests {
                 after_redirect_to_edit: 500,
                 after_search: 500,
                 menu_open: 300,
-            }
+            },
+            webdriver: WebDriverConfig {
+                url: "http://localhost:9515".to_string(),
+                args: vec![
+                    "--headless".to_string()
+                ],
+            },
         };
 
         assert_eq!(config, expected_config);

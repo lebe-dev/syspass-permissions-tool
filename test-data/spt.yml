@@ -8,6 +8,11 @@ auth:
 
 ignore-errors: true
 
+webdriver:
+  url: 'http://localhost:9515'
+  args:
+    - '--headless'
+
 permissions:
   user:
     view:

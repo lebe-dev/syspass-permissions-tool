@@ -1,6 +1,11 @@
 syspass-url: 'http://localhost:18080'
 
-webdriver-url: 'http://localhost:9515'
+webdriver:
+  url: 'http://localhost:9515'
+
+  # Uncomment if you want to watch progress in Chrome Browser
+  args:
+    - '--headless'
 
 # Credentials for web ui
 auth:
