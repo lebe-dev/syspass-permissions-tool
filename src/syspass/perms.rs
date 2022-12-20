@@ -5,7 +5,7 @@ use log::{debug, error, info};
 use thirtyfour::{By, Key, WebDriver, WebElement};
 
 use crate::config::PermissionsConfig;
-use crate::types::EmptyResult;
+use crate::types::{EmptyResult, OperationResult};
 
 pub async fn set_permissions_for_account_in_syspass(
     driver: &WebDriver, syspass_base_url: &str, login: &str,
@@ -105,16 +105,22 @@ pub async fn set_permissions_for_account_in_syspass(
                         info!("set main group");
                         set_additional_property_value(&main_group_row, &permissions.main_group).await?;
 
-                        if permissions.private_account {
-                            let private_account_switch = form_rows.get(4).unwrap();
-                            let private_account_control = private_account_switch.find(By::ClassName("mdl-switch")).await?;
-                            private_account_control.click().await?;
+                        let private_account_switch = form_rows.get(4).unwrap();
+                        debug!("check if 'private account option' enabled");
+                        let private_account_switch_status = is_checkbox_enabled(private_account_switch).await?;
+
+                        if permissions.private_account != private_account_switch_status {
+                            let option_switch = private_account_switch.find(By::ClassName("mdl-switch")).await?;
+                            option_switch.click().await?;
                         }
 
-                        if permissions.private_account_for_group {
-                            let private_account_for_group_switch = form_rows.get(5).unwrap();
-                            let private_account_control = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
-                            private_account_control.click().await?;
+                        let private_account_for_group_switch = form_rows.get(5).unwrap();
+                        debug!("check if 'private account for group' option enabled");
+                        let private_account_for_group_switch_status = is_checkbox_enabled(private_account_for_group_switch).await?;
+
+                        if permissions.private_account_for_group != private_account_for_group_switch_status {
+                            let option_switch = private_account_for_group_switch.find(By::ClassName("mdl-switch")).await?;
+                            option_switch.click().await?;
                         }
 
                     } else {
@@ -135,6 +141,15 @@ pub async fn set_permissions_for_account_in_syspass(
     }
 
     Ok(())
+}
+
+pub async fn is_checkbox_enabled(element: &WebElement) -> OperationResult<bool> {
+    let elements = element.find_all(By::ClassName("is-checked")).await?;
+
+    let status = !elements.is_empty();
+    debug!("checkbox enabled: {}", status);
+
+    Ok(status)
 }
 
 pub async fn set_permissions_for_security_entity(perm_inputs: &Vec<WebElement>,
