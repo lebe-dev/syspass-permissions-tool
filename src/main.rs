@@ -73,7 +73,7 @@ async fn main() {
                             Ok(config) => {
 
                                 let caps = DesiredCapabilities::chrome();
-                                match WebDriver::new("http://localhost:9515", caps).await {
+                                match WebDriver::new(&config.webdriver_url, caps).await {
                                     Ok(driver) => {
                                         match login_to_syspass(&driver, &config.syspass_url,
                                                &config.auth.login, &config.auth.password).await {

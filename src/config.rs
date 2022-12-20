@@ -11,6 +11,9 @@ pub struct AppConfig {
     #[serde(rename(deserialize = "syspass-url"))]
     pub syspass_url: String,
 
+    #[serde(rename(deserialize = "webdriver-url"))]
+    pub webdriver_url: String,
+
     pub auth: AuthConfig,
 
     #[serde(rename(deserialize = "ignore-errors"))]
@@ -74,6 +77,7 @@ mod tests {
 
         let expected_config = AppConfig {
             syspass_url: "http://localhost:18080".to_string(),
+            webdriver_url: "http://localhost:9515".to_string(),
             auth: AuthConfig {
                 login: "b2y63nu46n456".to_string(),
                 password: "2b34t45ynn968m".to_string(),
