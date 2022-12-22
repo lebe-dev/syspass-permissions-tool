@@ -5,7 +5,7 @@ Manage permissions for [sysPass](https://github.com/nuxsmin/sysPass) accounts.
 ## Features
 
 1. Set permissions for accounts
-2. Get accounts without permissions (Work in progress)
+2. Get accounts without permissions
 
 ## Why?
 
