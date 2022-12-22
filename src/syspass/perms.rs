@@ -86,7 +86,7 @@ pub async fn open_permissions_tab(driver: &WebDriver) -> EmptyResult {
             Ok(())
         }
         None => {
-            error!("couldn't find second tab in ui");
+            error!("couldn't find permissions tab in ui");
             Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
         }
     }
@@ -99,6 +99,23 @@ pub async fn open_account_actions_menu(element: &WebElement) -> EmptyResult {
     more_actions.click().await?;
 
     Ok(())
+}
+
+pub async fn go_to_account_view_page(element: &WebElement) -> EmptyResult {
+    let actions_block = element.find(By::ClassName("account-actions")).await?;
+
+    let view_button = actions_block.find_all(By::Tag("i")).await?;
+
+    match view_button.first() {
+        Some(button) => {
+            button.click().await?;
+            Ok(())
+        }
+        None => {
+            error!("couldn't find account view button inside 'account-actions'");
+            Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
+        }
+    }
 }
 
 pub async fn go_to_account_edit_page(element: &WebElement) -> EmptyResult {
@@ -265,4 +282,20 @@ pub async fn set_additional_property_value(element: &WebElement, value: &str) ->
     }
 
     Ok(())
+}
+
+/// Get permission tags from account view page -> permissions tab.
+///
+/// Expected element with class `.tag-list-box` as function argument.
+pub async fn get_tags_from_list_box_in_view_mode(element: &WebElement) -> OperationResult<Vec<String>> {
+    let tag_elements = element.find_all(By::ClassName("tag")).await?;
+
+    let mut tags: Vec<String> = vec![];
+
+    for tag_element in tag_elements {
+        let tag = tag_element.text().await?;
+        tags.push(tag.trim().to_string());
+    }
+
+    Ok(tags)
 }

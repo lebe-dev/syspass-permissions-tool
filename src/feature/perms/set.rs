@@ -4,10 +4,10 @@ use std::time::Duration;
 
 use anyhow::anyhow;
 use log::{debug, error, info};
-use thirtyfour::{By, DesiredCapabilities, WebDriver};
+use thirtyfour::{DesiredCapabilities, WebDriver};
 
 use crate::config::AppConfig;
-use crate::syspass::login::login_to_syspass;
+use crate::syspass::login::{login_to_syspass, relogin_if_required};
 use crate::syspass::perms::set_permissions_for_account;
 use crate::types::EmptyResult;
 use crate::xml::get_xml_config_from_file;
@@ -103,16 +103,4 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig,
         }
     }
 
-}
-
-async fn relogin_if_required(driver: &WebDriver, config: &AppConfig) -> EmptyResult {
-    let login_forms = driver.find_all(By::Id("frmLogin")).await?;
-
-    if !login_forms.is_empty() {
-        info!("relogin..");
-        login_to_syspass(&driver, &config.syspass_url,
-                         &config.auth.login, &config.auth.password).await?;
-    }
-
-    Ok(())
 }

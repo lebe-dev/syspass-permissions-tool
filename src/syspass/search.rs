@@ -1,6 +1,6 @@
-use thirtyfour::{By, WebElement};
+use thirtyfour::{By, WebDriver, WebElement};
 
-use crate::types::OperationResult;
+use crate::types::{EmptyResult, OperationResult};
 
 pub async fn get_search_item_category(element: &WebElement) -> OperationResult<String> {
     let category_element = element.find(By::ClassName("field-category")).await?;
@@ -20,4 +20,21 @@ pub async fn get_search_item_login(element: &WebElement) -> OperationResult<Stri
     let username_field = user_field.find(By::ClassName("field-text")).await?;
     let username = username_field.text().await?;
     Ok(username.trim().to_string())
+}
+
+pub async fn get_search_item_name(element: &WebElement) -> OperationResult<String> {
+    let name_element = element.find(By::ClassName("field-account")).await?;
+    let name_text_element = name_element.find(By::ClassName("field-text")).await?;
+    let name_text = name_text_element.text().await?;
+    Ok(name_text.trim().to_string())
+}
+
+pub async fn clear_search_input(driver: &WebDriver) -> EmptyResult {
+    let input = driver.find(By::Id("btn-reset")).await?;
+    input.click().await?;
+    Ok(())
+}
+
+pub async fn next_page_available(driver: &WebDriver) -> bool {
+    driver.find(By::Id("btn-pager-last")).await.is_ok()
 }

@@ -1,6 +1,7 @@
 use log::info;
 use thirtyfour::{By, WebDriver};
 
+use crate::config::AppConfig;
 use crate::types::EmptyResult;
 
 pub async fn login_to_syspass(driver: &WebDriver, syspass_base_url: &str,
@@ -21,6 +22,20 @@ pub async fn login_to_syspass(driver: &WebDriver, syspass_base_url: &str,
     login_button.click().await?;
 
     driver.find(By::ClassName("mdl-textfield__label")).await?;
+
+    info!("user '{}' logged to syspass", &login);
+
+    Ok(())
+}
+
+pub async fn relogin_if_required(driver: &WebDriver, config: &AppConfig) -> EmptyResult {
+    let login_forms = driver.find_all(By::Id("frmLogin")).await?;
+
+    if !login_forms.is_empty() {
+        info!("relogin..");
+        login_to_syspass(&driver, &config.syspass_url,
+                         &config.auth.login, &config.auth.password).await?;
+    }
 
     Ok(())
 }
