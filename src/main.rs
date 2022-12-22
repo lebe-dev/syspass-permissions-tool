@@ -4,7 +4,7 @@ use std::process::exit;
 use clap::{Arg, ArgAction, Command};
 
 use crate::config::load_config_from_file;
-use crate::feature::perms::set_permissions_for_accounts_in_syspass;
+use crate::feature::perms::set::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
 
 pub mod config;
