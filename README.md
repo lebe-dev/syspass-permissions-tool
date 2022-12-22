@@ -25,3 +25,8 @@ See [Architecture.md](docs/Architecture.md).
 ## For developers
 
 See [Dev.md](docs/Dev.md).
+
+## RoadMap
+
+1. Show progress in stdout
+2. Performance tweaks
