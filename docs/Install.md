@@ -2,13 +2,19 @@
 
 1. Install Chrome Web Driver
 
-   ArchLinux:
+   **RedHat/CentOS:**
+
+    ```shell
+    yum -y install chromedriver
+    ```
+
+    **ArchLinux:**
 
     ```shell
     paru -S chromedriver
     ```
 
-   For other OS check [official download page](https://chromedriver.chromium.org/downloads).
+    For other OS check [official download page](https://chromedriver.chromium.org/downloads).
 
 2. Install chrome
 
@@ -17,8 +23,14 @@
     ```shell
     paru -S google-chrome
     ```
-   
-3. Run chrome-driver
+ 
+3. Add permission:
+
+   ```shell
+   chmod +x spt
+   ```
+  
+4. Run chrome-driver
 
     ```shell
     $ chromedriver
