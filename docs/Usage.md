@@ -2,7 +2,7 @@
 
 ## 0. Prerequisites
 
-[Run chrome driver](docs/Install.md)
+[Run chrome driver](Install.md)
 
 ## 1. Set permissions
 
