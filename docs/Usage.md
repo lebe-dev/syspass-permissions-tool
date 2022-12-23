@@ -36,7 +36,7 @@ Run:
 
 Options:
 
-- `--resume` - try to continue progress base on file cache
+- `--resume` - try to continue process based on file cache.
 
 Example output:
 

@@ -13,3 +13,7 @@
 3. Update permissions for accounts
 
    Uses chrome webdriver.
+
+## File cache
+
+Command `get-empty` creates file cache (filename `accounts.cache`) inside working directory.
