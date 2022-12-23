@@ -46,3 +46,7 @@ delays:
   after-redirect-to-index: 500
   after-redirect-to-edit: 500
   after-search: 500
+
+cache:
+  # Create cache for accounts every N records
+  save-accounts: 10

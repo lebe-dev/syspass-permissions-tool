@@ -21,7 +21,9 @@ pub struct AppConfig {
 
     pub permissions: PermissionsConfig,
 
-    pub delays: DelaysConfig
+    pub delays: DelaysConfig,
+
+    pub cache: CacheConfig
 }
 
 impl Display for AppConfig {
@@ -132,6 +134,19 @@ impl Display for DelaysConfig {
     }
 }
 
+#[derive(Deserialize,PartialEq,Debug)]
+pub struct CacheConfig {
+    /// Create cache for accounts every N records
+    #[serde(rename(deserialize = "save-accounts"))]
+    pub save_accounts: u32
+}
+
+impl Display for CacheConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<Cache-Config> save-accounts: {} </Cache-Config>", self.save_accounts)
+    }
+}
+
 // ---
 
 pub fn load_config_from_file(file_path: &Path) -> OperationResult<AppConfig> {
@@ -149,7 +164,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{AppConfig, AuthConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig, WebDriverConfig};
+    use crate::config::{AppConfig, AuthConfig, CacheConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig, WebDriverConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -198,6 +213,9 @@ mod tests {
                 args: vec![
                     "--headless".to_string()
                 ],
+            },
+            cache: CacheConfig {
+                save_accounts: 10,
             },
         };
 

@@ -43,3 +43,7 @@ delays:
   after-redirect-to-edit: 500
   after-search: 500
   menu-open: 300
+
+cache:
+  # Create cache for accounts every N records
+  save-accounts: 10
