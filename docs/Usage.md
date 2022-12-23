@@ -26,11 +26,17 @@
 
 ## 2. Get empty permissions
 
+Looking for accounts with empty permissions and print results in JSON format.
+
 Run:
 
 ```shell
-./spt get-empty
+./spt get-empty [OPTIONS]
 ```
+
+Options:
+
+- `--resume` - try to continue progress base on file cache
 
 Example output:
 
