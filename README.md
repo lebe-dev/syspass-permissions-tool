@@ -29,7 +29,7 @@ SPT is ultra-fast and eats 13 KB of RAM, but it strongly depends on chrome webdr
 I did test with Core i7 12650H and 1800+ accounts, webdriver eat 2-3 GB of RAM and crashed on 70%. SPT saves progress in file cache. 
 Use `--resume` option for `get-empty` command if you want to continue interrupted process.
 
-Also headless for webdriver is preferable.
+Also headless mode for webdriver is preferable.
 
 ## For developers
 
