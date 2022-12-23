@@ -6,7 +6,7 @@ use thirtyfour::{By, DesiredCapabilities, WebDriver, WebElement};
 
 use crate::config::AppConfig;
 use crate::syspass::{Account, ELEMENT_NOT_FOUND_ERROR, UNSUPPORTED_UI_VERSION_ERROR};
-use crate::syspass::login::{login_to_syspass, relogin_if_required};
+use crate::syspass::login::login_to_syspass;
 use crate::syspass::perms::{get_tags_from_list_box_in_view_mode, go_to_account_view_page, open_permissions_tab};
 use crate::syspass::search::{clear_search_input, get_search_item_category, get_search_item_client, get_search_item_login, get_search_item_name, next_page_available};
 use crate::types::OperationResult;
