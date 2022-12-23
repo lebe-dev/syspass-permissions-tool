@@ -1,9 +1,12 @@
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 
+use anyhow::anyhow;
 use log::{debug, error, info};
 use thirtyfour::{By, DesiredCapabilities, WebDriver, WebElement};
 
+use crate::cache::{ACCOUNTS_CACHE_FILENAME, save_accounts_into_file};
 use crate::config::AppConfig;
 use crate::syspass::{Account, ELEMENT_NOT_FOUND_ERROR, UNSUPPORTED_UI_VERSION_ERROR};
 use crate::syspass::login::login_to_syspass;
@@ -11,8 +14,11 @@ use crate::syspass::perms::{get_tags_from_list_box_in_view_mode, go_to_account_v
 use crate::syspass::search::{clear_search_input, get_search_item_category, get_search_item_client, get_search_item_login, get_search_item_name, next_page_available};
 use crate::types::OperationResult;
 
-pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> OperationResult<Vec<Account>> {
+pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
+                                                 accounts_from_cache: &mut Vec<Account>) -> OperationResult<Vec<Account>> {
+
     info!("get accounts with empty permissions from syspass instance");
+    debug!("accounts in cache: {:?}", accounts_from_cache);
 
     let mut caps = DesiredCapabilities::chrome();
 
@@ -35,9 +41,19 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
 
     let mut has_errors = false;
 
+    let accounts_from_cache_clone = accounts_from_cache.clone();
+    let resume_cache_item = accounts_from_cache_clone.last();
+    let mut resumed_from_cache = resume_cache_item.is_none();
+    debug!("process resumed from cache: {}", resumed_from_cache);
+
     let mut accounts: Vec<Account> = vec![];
+    accounts.append(accounts_from_cache);
 
     let mut search_item_offset = 0;
+
+    let mut cache_items_counter: u16 = 0;
+
+    let cache_file_path = Path::new(ACCOUNTS_CACHE_FILENAME);
 
     while !last_page {
 
@@ -48,7 +64,7 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
 
         while search_items.len() > search_item_offset {
             let item = search_items.iter().skip(search_item_offset)
-                .into_iter().collect::<Vec<&WebElement>>();
+                                                   .into_iter().collect::<Vec<&WebElement>>();
 
             match item.iter().next() {
                 Some(search_item) => {
@@ -58,6 +74,36 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
                     let account_name = get_search_item_name(&search_item).await?;
 
                     info!("processing account '{}' (login '{}')", account_name, account_login);
+
+                    if !resumed_from_cache {
+                        match resume_cache_item {
+                            Some(last_account_from_cache) => {
+                                debug!("expect account '{}' with login '{}'",
+                                    last_account_from_cache.name, last_account_from_cache.login);
+
+                                let account = Account {
+                                    name: account_name.to_string(),
+                                    login: account_login.to_string(),
+                                    category: account_category.to_string(),
+                                    client: account_client.to_string(),
+                                };
+
+                                if last_account_from_cache == &account {
+                                    info!("resume process from account name '{}' and login '{}'",
+                                          account_name, account_login);
+                                    resumed_from_cache = true;
+
+                                } else {
+                                    info!("skip account, looking for account from cache");
+
+                                }
+                            }
+                            None => {}
+                        }
+
+                        search_item_offset += 1;
+                        continue;
+                    }
 
                     search_item.scroll_into_view().await?;
 
@@ -69,53 +115,40 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
 
                     let permissions_panel = driver.find(By::Id("permission-panel")).await?;
 
-                    let permission_rows = permissions_panel.find_all(By::Tag("tr")).await?;
+                    match account_has_empty_permissions(&permissions_panel).await {
+                        Ok(has_empty_permissions) => {
 
-                    if permission_rows.len() >= 2 {
+                            if has_empty_permissions {
+                                let account = Account {
+                                    name: account_name,
+                                    login: account_login,
+                                    category: account_category,
+                                    client: account_client,
+                                };
 
-                        let users_block_element = permission_rows.first().expect(ELEMENT_NOT_FOUND_ERROR);
-                        let users_perms = users_block_element.find_all(By::ClassName("tag-list-box")).await?;
+                                info!("add account: {:?}", account);
 
-                        let users_view_perms = users_perms.first().expect(ELEMENT_NOT_FOUND_ERROR);
-                        let users_view_tags = get_tags_from_list_box_in_view_mode(&users_view_perms).await?;
-                        debug!("users view tags: {:?}", users_view_tags);
+                                accounts.push(account);
 
-                        let users_edit_perms = users_perms.last().expect(ELEMENT_NOT_FOUND_ERROR);
-                        let users_edit_tags = get_tags_from_list_box_in_view_mode(&users_edit_perms).await?;
-                        debug!("users edit tags: {:?}", users_edit_tags);
+                                cache_items_counter += 1;
+                                debug!("cache items counter: {}", cache_items_counter);
 
-                        let groups_block_element = permission_rows.get(1).expect(ELEMENT_NOT_FOUND_ERROR);
+                                if cache_items_counter >= config.cache.save_accounts {
+                                    match save_accounts_into_file(&accounts, cache_file_path) {
+                                        Ok(_) => {
+                                            info!("accounts cache has been updated");
+                                            cache_items_counter = 0;
+                                        },
+                                        Err(e) => error!("cannot update accounts cache: {}", e)
+                                    }
+                                }
+                            }
 
-                        let groups_perms = groups_block_element.find_all(By::ClassName("tag-list-box")).await?;
-
-                        let groups_view_perms = groups_perms.first().expect(ELEMENT_NOT_FOUND_ERROR);
-                        let groups_view_tags = get_tags_from_list_box_in_view_mode(&groups_view_perms).await?;
-                        debug!("group view tags: {:?}", groups_view_tags);
-
-                        let groups_edit_perms = groups_perms.last().expect(ELEMENT_NOT_FOUND_ERROR);
-                        let groups_edit_tags = get_tags_from_list_box_in_view_mode(&groups_edit_perms).await?;
-                        debug!("group edit tags: {:?}", groups_edit_tags);
-
-                        if users_view_tags.is_empty() && users_edit_tags.is_empty() && groups_view_tags.is_empty() &&
-                            groups_edit_tags.is_empty() {
-
-                            let account = Account {
-                                name: account_name,
-                                login: account_login,
-                                category: account_category,
-                                client: account_client,
-                            };
-
-                            info!("add account: {:?}", account);
-
-                            accounts.push(account);
+                        },
+                        Err(_) => {
+                            has_errors = true;
+                            break;
                         }
-
-                    } else {
-                        error!("expected at least two 'tr' rows on permissions tab");
-                        error!("{}", UNSUPPORTED_UI_VERSION_ERROR);
-                        has_errors = true;
-                        break;
                     }
 
                     info!("back to search page");
@@ -158,4 +191,51 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
     }
 
     Ok(accounts)
+}
+
+async fn account_has_empty_permissions(permissions_panel_element: &WebElement) -> OperationResult<bool> {
+    let permission_rows = permissions_panel_element.find_all(By::Tag("tr")).await?;
+
+    if permission_rows.len() >= 2 {
+
+        let users_block_element = permission_rows.first()
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+        let users_perms = users_block_element.find_all(By::ClassName("tag-list-box")).await?;
+
+        let users_view_perms = users_perms.first()
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+        let users_view_tags = get_tags_from_list_box_in_view_mode(&users_view_perms).await?;
+        debug!("users view tags: {:?}", users_view_tags);
+
+        let users_edit_perms = users_perms.last()
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+        let users_edit_tags = get_tags_from_list_box_in_view_mode(&users_edit_perms).await?;
+        debug!("users edit tags: {:?}", users_edit_tags);
+
+        let groups_block_element = permission_rows.get(1)
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+
+        let groups_perms = groups_block_element.find_all(By::ClassName("tag-list-box")).await?;
+
+        let groups_view_perms = groups_perms.first()
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+        let groups_view_tags = get_tags_from_list_box_in_view_mode(&groups_view_perms).await?;
+        debug!("group view tags: {:?}", groups_view_tags);
+
+        let groups_edit_perms = groups_perms.last()
+            .expect(ELEMENT_NOT_FOUND_ERROR);
+        let groups_edit_tags = get_tags_from_list_box_in_view_mode(&groups_edit_perms).await?;
+        debug!("group edit tags: {:?}", groups_edit_tags);
+
+        let has_empty_permissions = users_view_tags.is_empty() &&
+            users_edit_tags.is_empty() &&
+            groups_view_tags.is_empty() &&
+            groups_edit_tags.is_empty();
+
+        Ok(has_empty_permissions)
+
+    } else {
+        error!("expected at least two 'tr' rows on permissions tab");
+        Err(anyhow!("{}", UNSUPPORTED_UI_VERSION_ERROR))
+    }
 }

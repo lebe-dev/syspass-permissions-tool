@@ -1,13 +1,15 @@
 use std::path::Path;
 use std::process::exit;
 
-use clap::{Arg, ArgAction, Command};
-use log::error;
+use clap::{Arg, ArgAction, ArgMatches, Command};
+use log::{error, info};
 
+use crate::cache::{ACCOUNTS_CACHE_FILENAME, load_accounts_from_file};
 use crate::config::load_config_from_file;
 use crate::feature::perms::get::get_accounts_with_empty_permissions;
 use crate::feature::perms::set::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
+use crate::syspass::Account;
 
 pub mod config;
 pub mod types;
@@ -15,6 +17,7 @@ pub mod logging;
 pub mod xml;
 pub mod feature;
 pub mod syspass;
+pub mod cache;
 
 #[cfg(test)]
 pub mod tests;
@@ -28,6 +31,8 @@ pub const GET_EMPTY_CMD: &str = "get-empty";
 
 pub const XML_FILE_OPTION: &str = "xml-file";
 
+pub const RESUME_OPTION: &str = "resume";
+
 const EXIT_CODE_ERROR: i32 = 1;
 
 #[tokio::main]
@@ -36,7 +41,7 @@ async fn main() {
         .name(APP_NAME)
         .bin_name(APP_NAME)
         .about("Permissions Tool for sysPass")
-        .version("0.1.0")
+        .version("0.3.1")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
@@ -54,6 +59,13 @@ async fn main() {
         .subcommand(
             Command::new(GET_EMPTY_CMD)
                 .about("Get accounts with empty permissions")
+                .arg(
+                    Arg::new(RESUME_OPTION)
+                        .long(RESUME_OPTION)
+                        .help("resume process from last error")
+                        .action(ArgAction::SetTrue)
+                        .required(false)
+                )
         )
         .get_matches();
 
@@ -102,12 +114,14 @@ async fn main() {
                 None => {}
             }
         },
-        Some((GET_EMPTY_CMD, _)) => {
+        Some((GET_EMPTY_CMD, get_matches)) => {
 
             match load_config_from_file(config_file) {
                 Ok(config) => {
 
-                    match get_accounts_with_empty_permissions(&config).await {
+                    let mut accounts_from_cache = get_accounts_cache(get_matches);
+
+                    match get_accounts_with_empty_permissions(&config, &mut accounts_from_cache).await {
                         Ok(accounts) => {
                             match serde_json::to_string(&accounts) {
                                 Ok(accounts_str) => println!("{}", accounts_str),
@@ -132,5 +146,24 @@ async fn main() {
 
         },
         _ => println!("Use -h for help")
+    }
+}
+
+fn get_accounts_cache(matches: &ArgMatches) -> Vec<Account> {
+    let resume_option = matches.get_flag(RESUME_OPTION);
+
+    if resume_option {
+        let cache_file = Path::new(ACCOUNTS_CACHE_FILENAME);
+
+        match load_accounts_from_file(cache_file) {
+            Ok(accounts) => accounts,
+            Err(e) => {
+                info!("couldn't load accounts from cache file: {}, skip", e);
+                vec![]
+            }
+        }
+
+    } else {
+        vec![]
     }
 }

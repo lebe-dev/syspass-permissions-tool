@@ -31,3 +31,4 @@ html_parser = "0.6.3"
 [dev-dependencies]
 env_logger = "0.10.0"
 fake = "2"
+tempfile = "3.3.0"

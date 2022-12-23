@@ -138,7 +138,7 @@ impl Display for DelaysConfig {
 pub struct CacheConfig {
     /// Create cache for accounts every N records
     #[serde(rename(deserialize = "save-accounts"))]
-    pub save_accounts: u32
+    pub save_accounts: u16
 }
 
 impl Display for CacheConfig {
