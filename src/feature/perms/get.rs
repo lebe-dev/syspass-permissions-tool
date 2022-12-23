@@ -40,8 +40,6 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig) -> Operatio
     let mut search_item_offset = 0;
 
     while !last_page {
-        // relogin_if_required(&driver, &config).await?;
-        // thread::sleep(Duration::from_millis(config.delays.after_login));
 
         let mut search_items = driver.find_all(By::ClassName("account-label")).await?;
 
