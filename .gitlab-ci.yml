@@ -5,7 +5,7 @@ build-rockylinux8:
   stage: build
 
   script:
-    - BIN=target/release/syspass-permissions-tool
+    - BIN=target/x86_64-unknown-linux-musl/release/syspass-permissions-tool
     - cargo test
     - cross build --target=x86_64-unknown-linux-musl --release
     - eu-elfcompress $BIN
