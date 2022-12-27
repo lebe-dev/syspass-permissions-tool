@@ -35,6 +35,7 @@ build-windows:
     - cargo test
     - cargo build --release
     - copy target/release/syspass-permissions-tool.exe ./spt.exe
+    - upx -9 --lzma spt.exe
 
   artifacts:
     name: spt-windows
