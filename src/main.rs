@@ -51,7 +51,7 @@ async fn main() {
         .arg_required_else_help(true)
         .subcommand(
         Command::new(SET_CMD)
-                .about("Set permissions for users")
+                .about("Set permissions for accounts")
                 .arg(
                     Arg::new(XML_FILE_OPTION)
                         .long(XML_FILE_OPTION)
