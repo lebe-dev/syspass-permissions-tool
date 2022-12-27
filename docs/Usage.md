@@ -38,6 +38,12 @@ Options:
 
 - `--resume` - try to continue process based on file cache.
 
+- Account filters:
+  - `--category`
+  - `--client`
+  - `--login-starts-with`
+  - `--name-starts-with`
+
 Example output:
 
 ```json
