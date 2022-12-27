@@ -12,7 +12,7 @@ Manage permissions for [sysPass](https://github.com/nuxsmin/sysPass) accounts.
 1. sysPass allows to import data from csv / xml files or [API]((https://syspass-doc.readthedocs.io/en/3.1/application/api.html)), 
 but it doesn't support permissions.
 
-2. At the moment (14.12.2022) I didn't find suitable solution.`
+2. At the moment (14.12.2022) I didn't find suitable solution.
 
 ## Usage
 
