@@ -5,13 +5,13 @@ build-rockylinux8:
   stage: build
 
   script:
-    - 'BIN=target/release/syspass-permissions-tool'
-    - 'cargo test'
-    - 'cargo build --release'
-    - 'eu-elfcompress $BIN'
-    - 'strip $BIN'
-    - 'upx -9 --lzma $BIN'
-    - 'cp $BIN spt'
+    - BIN=target/release/syspass-permissions-tool
+    - cargo test
+    - 'cross build --target=x86_64-unknown-linux-musl --release
+    - eu-elfcompress $BIN
+    - strip $BIN
+    - upx -9 --lzma $BIN
+    - cp $BIN spt
 
   artifacts:
     name: spt-rockylinux8
