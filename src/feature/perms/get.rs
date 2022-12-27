@@ -4,7 +4,7 @@ use std::thread;
 use std::time::Duration;
 
 use anyhow::anyhow;
-use log::{debug, error, info};
+use log::{debug, error, info, trace};
 use thirtyfour::{By, DesiredCapabilities, WebDriver, WebElement};
 
 use crate::cache::{ACCOUNTS_CACHE_FILENAME, save_accounts_into_file};
@@ -93,18 +93,18 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
 
                     info!("processing account '{}' (login '{}')", account_name, account_login);
 
+                    let account = Account {
+                        name: account_name.to_string(),
+                        login: account_login.to_string(),
+                        category: account_category.to_string(),
+                        client: account_client.to_string(),
+                    };
+
                     if !resumed_from_cache {
                         match resume_cache_item {
                             Some(last_account_from_cache) => {
                                 debug!("expect account '{}' with login '{}'",
                                     last_account_from_cache.name, last_account_from_cache.login);
-
-                                let account = Account {
-                                    name: account_name.to_string(),
-                                    login: account_login.to_string(),
-                                    category: account_category.to_string(),
-                                    client: account_client.to_string(),
-                                };
 
                                 if last_account_from_cache == &account {
                                     info!("resume process from account name '{}' and login '{}'",
@@ -113,13 +113,18 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
 
                                 } else {
                                     info!("skip account, looking for account from cache");
-
                                 }
                             }
                             None => {}
                         }
 
                         search_item_offset += 1;
+                        continue;
+                    }
+
+                    if !account_matches_filters(&account, &filter_options) {
+                        info!("account '{}' (login '{}') doesn't match filter options, skip",
+                            account.name, account.login);
                         continue;
                     }
 
@@ -210,6 +215,44 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
     Ok(accounts)
 }
 
+fn account_matches_filters(account: &Account, filter_options: &AccountFilterOptions) -> bool {
+    let mut account_match = true;
+
+    if !filter_options.login_starts_with.is_empty() {
+        if !account.login.starts_with(&filter_options.login_starts_with) {
+            account_match = false;
+            trace!("login-start-with '{}' doesn't match with '{}'",
+                filter_options.login_starts_with, account.login);
+        }
+    }
+
+    if !filter_options.name_starts_with.is_empty() {
+        if !account.name.starts_with(&filter_options.name_starts_with) {
+            account_match = false;
+            trace!("name-start-with '{}' doesn't match with '{}'",
+                filter_options.name_starts_with, account.name);
+        }
+    }
+
+    if !filter_options.category_name.is_empty() {
+        if account.category != filter_options.category_name {
+            account_match = false;
+            trace!("category-name '{}' doesn't match with '{}'",
+                filter_options.category_name, account.category);
+        }
+    }
+
+    if !filter_options.client_name.is_empty() {
+        if account.client != filter_options.client_name {
+            account_match = false;
+            trace!("client-name '{}' doesn't match with '{}'",
+                filter_options.client_name, account.client);
+        }
+    }
+
+    return account_match
+}
+
 async fn account_has_empty_permissions(permissions_panel_element: &WebElement) -> OperationResult<bool> {
     let permission_rows = permissions_panel_element.find_all(By::Tag("tr")).await?;
 
@@ -254,5 +297,94 @@ async fn account_has_empty_permissions(permissions_panel_element: &WebElement) -
     } else {
         error!("expected at least two 'tr' rows on permissions tab");
         Err(anyhow!("{}", UNSUPPORTED_UI_VERSION_ERROR))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::feature::perms::get::{account_matches_filters, AccountFilterOptions};
+    use crate::syspass::Account;
+    use crate::tests::{get_random_string, init_logging};
+
+    #[test]
+    fn return_true_for_match() {
+        init_logging();
+
+        let filter_options = get_account_filter_options();
+
+        let account = get_account();
+
+        assert!(account_matches_filters(&account, &filter_options));
+    }
+
+    #[test]
+    fn return_false_for_category_mismatch() {
+        let filter_options = get_account_filter_options();
+
+        let mut account = get_account();
+        account.category = get_random_string();
+
+        assert!(!account_matches_filters(&account, &filter_options));
+    }
+
+    #[test]
+    fn return_false_for_client_mismatch() {
+        let filter_options = get_account_filter_options();
+
+        let mut account = get_account();
+        account.client = get_random_string();
+
+        assert!(!account_matches_filters(&account, &filter_options));
+    }
+
+    #[test]
+    fn return_false_for_name_mask_mismatch() {
+        let filter_options = get_account_filter_options();
+
+        let mut account = get_account();
+        account.name = get_random_string();
+
+        assert!(!account_matches_filters(&account, &filter_options));
+    }
+
+    #[test]
+    fn return_false_for_login_mask_mismatch() {
+        let filter_options = get_account_filter_options();
+
+        let mut account = get_account();
+        account.login = get_random_string();
+
+        assert!(!account_matches_filters(&account, &filter_options));
+    }
+
+    #[test]
+    fn ignore_filters_with_blank_values() {
+        let mut filter_options = get_account_filter_options();
+        filter_options.category_name = String::new();
+        filter_options.client_name = String::new();
+        filter_options.login_starts_with = String::new();
+        filter_options.name_starts_with = String::new();
+
+        let account = get_account();
+
+        assert!(account_matches_filters(&account, &filter_options));
+    }
+
+    fn get_account_filter_options() -> AccountFilterOptions {
+        AccountFilterOptions {
+            category_name: "Apps".to_string(),
+            client_name: "BirchShop".to_string(),
+            login_starts_with: "demo".to_string(),
+            name_starts_with: "Hercules".to_string(),
+        }
+    }
+
+    fn get_account() -> Account {
+        Account {
+            name: "Hercules II".to_string(),
+            login: "demo-acc".to_string(),
+            category: "Apps".to_string(),
+            client: "BirchShop".to_string(),
+        }
     }
 }
