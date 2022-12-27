@@ -9,6 +9,8 @@ but it doesn't support permissions.
 
 2. At the moment (14.12.2022) I didn't find suitable solution.
 
+3. sysPass project is abandoned by author
+
 ## Features
 
 1. Set permissions for accounts
