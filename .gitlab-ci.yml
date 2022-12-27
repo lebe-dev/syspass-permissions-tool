@@ -1,7 +1,7 @@
 stages:
   - build
 
-build-rockylinux8:
+build-linux:
   stage: build
 
   script:
@@ -14,7 +14,7 @@ build-rockylinux8:
     - cp $BIN spt
 
   artifacts:
-    name: spt-rockylinux8
+    name: spt-linux-x86_64-static
     paths:
       - spt
       - spt.yml-dist
