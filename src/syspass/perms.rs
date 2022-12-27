@@ -186,7 +186,7 @@ pub async fn set_secondary_properties(permission_panel: &WebElement, permissions
         Ok(())
 
     } else {
-        error!("table with secondary properties is not available, possible lack of permissions. skip");
+        info!("table with secondary properties is not available, possible lack of permissions. skip");
         Ok(())
     }
 }
