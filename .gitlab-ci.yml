@@ -1,0 +1,52 @@
+stages:
+  - build
+
+build-rockylinux8:
+  stage: build
+
+  script:
+    - 'BIN=target/release/syspass-permissions-tool'
+    - 'cargo test'
+    - 'cargo build --release'
+    - 'eu-elfcompress $BIN'
+    - 'strip $BIN'
+    - 'upx -9 --lzma $BIN'
+    - 'cp $BIN spt'
+
+  artifacts:
+    name: spt-rockylinux8
+    paths:
+      - spt
+      - spt.yml-dist
+      - import.xml-sample
+      - README.md
+      - docs
+      - docker-compose.yml
+    expire_in: 1 week
+
+  tags:
+    - rust
+    - rhel8
+
+build-windows:
+  stage: build
+
+  script:
+    - cargo test
+    - cargo build --release
+    - copy target/release/syspass-permissions-tool.exe ./spt.exe
+
+  artifacts:
+    name: spt-windows
+    paths:
+      - spt.exe
+      - spt.yml-dist
+      - import.xml-sample
+      - README.md
+      - docs
+      - docker-compose.yml
+    expire_in: 1 week
+
+  tags:
+    - rust
+    - windows
