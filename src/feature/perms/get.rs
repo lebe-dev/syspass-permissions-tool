@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::path::Path;
 use std::thread;
 use std::time::Duration;
@@ -14,11 +15,28 @@ use crate::syspass::perms::{get_tags_from_list_box_in_view_mode, go_to_account_v
 use crate::syspass::search::{clear_search_input, get_search_item_category, get_search_item_client, get_search_item_login, get_search_item_name, next_page_available};
 use crate::types::OperationResult;
 
+pub struct AccountFilterOptions {
+    pub category_name: String,
+    pub client_name: String,
+    pub login_starts_with: String,
+    pub name_starts_with: String,
+}
+
+impl Display for AccountFilterOptions {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<AccountFilterOptions> category-name '{}',", self.category_name)?;
+        write!(f, "client-name '{}', login-starts-with '{}'", self.client_name, self.login_starts_with)?;
+        write!(f, "name-starts-with '{}' </AccountFilterOptions>", self.name_starts_with)
+    }
+}
+
 pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
-                                                 accounts_from_cache: &mut Vec<Account>) -> OperationResult<Vec<Account>> {
+                         accounts_from_cache: &mut Vec<Account>,
+                         filter_options: &AccountFilterOptions) -> OperationResult<Vec<Account>> {
 
     info!("get accounts with empty permissions from syspass instance");
     debug!("accounts in cache: {:?}", accounts_from_cache);
+    debug!("filter options: {}", filter_options);
 
     let mut caps = DesiredCapabilities::chrome();
 
@@ -175,7 +193,6 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
             error!("interrupt process due error(s). check logs for details.");
             break;
         }
-
 
         last_page = !next_page_available(&driver).await;
         debug!("is it last page: {}", last_page);

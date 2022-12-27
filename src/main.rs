@@ -6,7 +6,7 @@ use log::{error, info};
 
 use crate::cache::{ACCOUNTS_CACHE_FILENAME, load_accounts_from_file};
 use crate::config::load_config_from_file;
-use crate::feature::perms::get::get_accounts_with_empty_permissions;
+use crate::feature::perms::get::{AccountFilterOptions, get_accounts_with_empty_permissions};
 use crate::feature::perms::set::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
 use crate::syspass::Account;
@@ -32,6 +32,11 @@ pub const GET_EMPTY_CMD: &str = "get-empty";
 pub const XML_FILE_OPTION: &str = "xml-file";
 
 pub const RESUME_OPTION: &str = "resume";
+
+pub const CATEGORY_FILTER_OPTION: &str = "category";
+pub const CLIENT_FILTER_OPTION: &str = "client";
+pub const LOGIN_STARTS_WITH_FILTER_OPTION: &str = "login-starts-with";
+pub const NAME_STARTS_WITH_FILTER_OPTION: &str = "name-starts-with";
 
 const EXIT_CODE_ERROR: i32 = 1;
 
@@ -64,6 +69,38 @@ async fn main() {
                         .long(RESUME_OPTION)
                         .help("resume process from last error")
                         .action(ArgAction::SetTrue)
+                        .required(false)
+                )
+                .arg(
+                    Arg::new(CATEGORY_FILTER_OPTION)
+                        .long(CATEGORY_FILTER_OPTION)
+                        .help("filter by category name")
+                        .default_value("")
+                        .action(ArgAction::Set)
+                        .required(false)
+                )
+                .arg(
+                    Arg::new(CLIENT_FILTER_OPTION)
+                        .long(CLIENT_FILTER_OPTION)
+                        .help("filter by client name")
+                        .default_value("")
+                        .action(ArgAction::Set)
+                        .required(false)
+                )
+                .arg(
+                    Arg::new(LOGIN_STARTS_WITH_FILTER_OPTION)
+                        .long(LOGIN_STARTS_WITH_FILTER_OPTION)
+                        .help("filter by login starts with")
+                        .default_value("")
+                        .action(ArgAction::Set)
+                        .required(false)
+                )
+                .arg(
+                    Arg::new(NAME_STARTS_WITH_FILTER_OPTION)
+                        .long(NAME_STARTS_WITH_FILTER_OPTION)
+                        .help("filter by name starts with")
+                        .default_value("")
+                        .action(ArgAction::Set)
                         .required(false)
                 )
         )
@@ -121,7 +158,10 @@ async fn main() {
 
                     let mut accounts_from_cache = get_accounts_cache(get_matches);
 
-                    match get_accounts_with_empty_permissions(&config, &mut accounts_from_cache).await {
+                    let account_filter_options = get_account_filter_options(get_matches);
+
+                    match get_accounts_with_empty_permissions(&config, &mut accounts_from_cache,
+                                                              &account_filter_options).await {
                         Ok(accounts) => {
                             match serde_json::to_string(&accounts) {
                                 Ok(accounts_str) => println!("{}", accounts_str),
@@ -165,5 +205,26 @@ fn get_accounts_cache(matches: &ArgMatches) -> Vec<Account> {
 
     } else {
         vec![]
+    }
+}
+
+fn get_account_filter_options(matches: &ArgMatches) -> AccountFilterOptions {
+    let category_name = matches.get_one::<String>(CATEGORY_FILTER_OPTION);
+    let client_name = matches.get_one::<String>(CLIENT_FILTER_OPTION);
+    let login_starts_with = matches.get_one::<String>(LOGIN_STARTS_WITH_FILTER_OPTION);
+    let name_starts_with = matches.get_one::<String>(NAME_STARTS_WITH_FILTER_OPTION);
+
+    AccountFilterOptions {
+        category_name: get_string_or_blank(category_name),
+        client_name: get_string_or_blank(client_name),
+        login_starts_with: get_string_or_blank(login_starts_with),
+        name_starts_with: get_string_or_blank(name_starts_with),
+    }
+}
+
+fn get_string_or_blank(value: Option<&String>) -> String {
+    match value {
+        Some(value_string) => value_string.to_string(),
+        None => String::new()
     }
 }
