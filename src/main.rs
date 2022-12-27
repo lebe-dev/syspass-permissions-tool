@@ -22,7 +22,7 @@ pub mod cache;
 #[cfg(test)]
 pub mod tests;
 
-pub const APP_NAME: &str = "app";
+pub const APP_NAME: &str = "spt";
 
 pub const CONFIG_FILE: &str = "spt.yml";
 
