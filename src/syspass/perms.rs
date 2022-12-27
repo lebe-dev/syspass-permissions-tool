@@ -186,8 +186,8 @@ pub async fn set_secondary_properties(permission_panel: &WebElement, permissions
         Ok(())
 
     } else {
-        error!("table with secondary properties has less rows than expected (6)");
-        Err(anyhow!(UNSUPPORTED_UI_VERSION_ERROR))
+        error!("table with secondary properties is not available, possible lack of permissions. skip");
+        Ok(())
     }
 }
 
