@@ -24,9 +24,11 @@ See [Architecture.md](docs/Architecture.md).
 
 ## Performance, resources and stability
 
-SPT is ultra-fast and eats 13 KB of RAM, but strongly depends on chrome webdriver.
+SPT is ultra-fast and eats 13 KB of RAM, but strongly depends on chrome webdriver. You can tweak delays in config file.
 
-I did tests with Core i7 12650H and 1800+ accounts, webdriver eats 2-3 GB of RAM and crashed on 70%.
+### Get empty permissions and checkpoints
+
+I did tests for `get-empty` command with Core i7 12650H and 1800+ accounts, webdriver ate 2-3 GB of RAM and crashed on 70% with message:
 
 > error: webDriver command error: webdriver returned error: unknown error: session deleted because of page crash
 

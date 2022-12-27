@@ -6,11 +6,13 @@
 
 ## 1. Set permissions
 
-1. Prepare XML file for import
+1. Create backup of your sysPass data
+
+2. Prepare XML file for import
 
    Prepare `import.xml` file. You can override filename with `--xml-file` option.
 
-2. Prepare app config:
+3. Prepare app config:
 
     ```shell
     cp spt.yml-dist spt.yml
@@ -18,10 +20,10 @@
 
    Edit and put valid credentials, tokens, etc.
 
-3. Run:
+4. Run:
 
     ```shell
-    ./spt set
+    ./spt set --xml-file import.xml
     ```
 
 ## 2. Get empty permissions
@@ -39,10 +41,10 @@ Options:
 - `--resume` - try to continue process based on file cache.
 
 - Account filters:
-  - `--category`
-  - `--client`
-  - `--login-starts-with`
-  - `--name-starts-with`
+  - `--category <name>`
+  - `--client <name>`
+  - `--login-starts-with <name>`
+  - `--name-starts-with <name>`
 
 Example output:
 
