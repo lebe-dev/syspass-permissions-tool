@@ -6,7 +6,7 @@
 
 ## 1. Set permissions
 
-1. Create backup of your sysPass data
+1. [Create backup of your sysPass data](https://syspass-doc.readthedocs.io/en/3.1/application/backup.html)
 
 2. Prepare XML file for import
 
