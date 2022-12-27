@@ -9,7 +9,7 @@ but it doesn't support permissions.
 
 2. At the moment (14.12.2022) I didn't find suitable solution.
 
-3. sysPass project is abandoned by author
+3. sysPass author has no time for project
 
 ## Features
 
@@ -37,6 +37,10 @@ I did tests for `get-empty` command with Core i7 12650H and 1800+ accounts, webd
 SPT saves progress in file cache. Use `--resume` option for `get-empty` command if you want to continue interrupted process.
 
 Also headless mode for webdriver is preferable.
+
+## Troubleshooting
+
+See [Troubleshooting.md](docs/Troubleshooting.md).
 
 ## For developers
 
