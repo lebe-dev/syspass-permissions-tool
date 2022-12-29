@@ -15,7 +15,7 @@ use crate::types::OperationResult;
 pub struct XmlConfig {
     pub categories: Vec<MetaProperty>,
     pub clients: Vec<MetaProperty>,
-    pub accounts: Vec<Account>
+    pub accounts: Vec<XmlAccount>
 }
 
 #[derive(Debug,PartialEq,Clone)]
@@ -25,7 +25,7 @@ pub struct MetaProperty {
 }
 
 #[derive(Debug,PartialEq,Clone)]
-pub struct Account {
+pub struct XmlAccount {
     pub id: u16,
     pub name: String,
     pub client_id: u16,
@@ -33,7 +33,7 @@ pub struct Account {
     pub login: String
 }
 
-impl Display for Account {
+impl Display for XmlAccount {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "<Account>id {}, name '{}', login '{}', client-id {}, category-id {}</Account>",
                self.id, self.name, self.login, self.client_id, self.category_id)
@@ -60,7 +60,7 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
 
     let mut categories: Vec<MetaProperty> = vec![];
     let mut clients: Vec<MetaProperty> = vec![];
-    let mut accounts: Vec<Account> = vec![];
+    let mut accounts: Vec<XmlAccount> = vec![];
 
     let mut current_id: u16 = UNINITIALIZED_ID_VALUE;
     let mut current_name = String::new();
@@ -149,7 +149,7 @@ pub fn get_xml_config_from_file(file_path: &Path) -> OperationResult<XmlConfig> 
                     b"Account" => {
                         info!("close client tag");
                         accounts.push(
-                            Account {
+                            XmlAccount {
                                 id: current_id,
                                 name: current_name.to_string(),
                                 client_id: current_client_id,
@@ -236,7 +236,7 @@ mod tests {
     use fake::{Fake, Faker};
 
     use crate::tests::init_logging;
-    use crate::xml::{Account, get_xml_config_from_file, MetaProperty, XmlConfig};
+    use crate::xml::{get_xml_config_from_file, MetaProperty, XmlAccount, XmlConfig};
 
     #[test]
     fn config_should_be_loaded() {
@@ -264,14 +264,14 @@ mod tests {
                 }
             ],
             accounts: vec![
-                Account {
+                XmlAccount {
                     id: 1,
                     name: "Ivan Petrov".to_string(),
                     client_id: 1,
                     category_id: 2,
                     login: "i.petrov".to_string(),
                 },
-                Account {
+                XmlAccount {
                     id: 2,
                     name: "Abramova Nina".to_string(),
                     client_id: 2,
