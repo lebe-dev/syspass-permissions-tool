@@ -16,4 +16,4 @@
 
 ## File cache
 
-Command `get-empty` creates file cache (filename `accounts.cache`) inside working directory.
+Command `get-empty` creates file cache (filename `accounts-get.cache`) inside working directory.

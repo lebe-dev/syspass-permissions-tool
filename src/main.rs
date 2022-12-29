@@ -3,13 +3,13 @@ use std::process::exit;
 
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use log::{error, info};
+use serde::Deserialize;
 
-use crate::cache::{ACCOUNTS_CACHE_FILENAME, load_accounts_from_file};
+use crate::cache::{ACCOUNTS_GET_CACHE_FILENAME, load_cache_data_from_file};
 use crate::config::load_config_from_file;
 use crate::feature::perms::get::{AccountFilterOptions, get_accounts_with_empty_permissions};
 use crate::feature::perms::set::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
-use crate::syspass::Account;
 
 pub mod config;
 pub mod types;
@@ -50,7 +50,7 @@ async fn main() {
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
-        Command::new(SET_CMD)
+            Command::new(SET_CMD)
                 .about("Set permissions for accounts")
                 .arg(
                     Arg::new(XML_FILE_OPTION)
@@ -124,10 +124,8 @@ async fn main() {
                     let xml_file = Path::new(path);
 
                     if xml_file.is_file() && xml_file.exists() {
-
                         match load_config_from_file(config_file) {
                             Ok(config) => {
-
                                 match set_permissions_for_accounts_in_syspass(&config, xml_file).await {
                                     Ok(_) => println!("complete"),
                                     Err(e) => {
@@ -135,14 +133,12 @@ async fn main() {
                                         exit(EXIT_CODE_ERROR)
                                     }
                                 }
-
                             }
                             Err(e) => {
                                 eprintln!("couldn't load config: {}", e);
                                 exit(EXIT_CODE_ERROR)
                             }
                         }
-
                     } else {
                         eprintln!("xml file wasn't found '{}'", xml_file.display());
                         exit(EXIT_CODE_ERROR)
@@ -150,13 +146,11 @@ async fn main() {
                 }
                 None => {}
             }
-        },
+        }
         Some((GET_EMPTY_CMD, get_matches)) => {
-
             match load_config_from_file(config_file) {
                 Ok(config) => {
-
-                    let mut accounts_from_cache = get_accounts_cache(get_matches);
+                    let mut accounts_from_cache = get_command_progress_data_from_cache(get_matches, ACCOUNTS_GET_CACHE_FILENAME, vec![]);
 
                     let account_filter_options = get_account_filter_options(get_matches);
 
@@ -170,41 +164,41 @@ async fn main() {
                                     exit(EXIT_CODE_ERROR)
                                 }
                             }
-                        },
+                        }
                         Err(e) => {
                             eprintln!("error: {}", e.root_cause());
                             exit(EXIT_CODE_ERROR)
                         }
                     }
-
                 }
                 Err(e) => {
                     eprintln!("couldn't load config: {}", e);
                     exit(EXIT_CODE_ERROR)
                 }
             }
-
-        },
+        }
         _ => println!("Use -h for help")
     }
 }
 
-fn get_accounts_cache(matches: &ArgMatches) -> Vec<Account> {
+/// If `--resume` flag was provided, try to load progress data from cache
+fn get_command_progress_data_from_cache<T: for<'a> Deserialize<'a>>(matches: &ArgMatches,
+                                                        cache_filename: &str,
+                                                        fallback_value: T) -> T {
     let resume_option = matches.get_flag(RESUME_OPTION);
 
     if resume_option {
-        let cache_file = Path::new(ACCOUNTS_CACHE_FILENAME);
+        let cache_file = Path::new(cache_filename);
 
-        match load_accounts_from_file(cache_file) {
-            Ok(accounts) => accounts,
+        match load_cache_data_from_file(cache_file) {
+            Ok(data) => data,
             Err(e) => {
-                info!("couldn't load accounts from cache file: {}, skip", e);
-                vec![]
+                info!("couldn't load data from cache file: {}, skip", e);
+                fallback_value
             }
         }
-
     } else {
-        vec![]
+        fallback_value
     }
 }
 

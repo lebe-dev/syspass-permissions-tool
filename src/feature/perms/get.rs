@@ -7,7 +7,7 @@ use anyhow::anyhow;
 use log::{debug, error, info, trace};
 use thirtyfour::{By, DesiredCapabilities, WebDriver, WebElement};
 
-use crate::cache::{ACCOUNTS_CACHE_FILENAME, save_accounts_into_file};
+use crate::cache::{ACCOUNTS_GET_CACHE_FILENAME, save_cache_data_into_file};
 use crate::config::AppConfig;
 use crate::syspass::{Account, ELEMENT_NOT_FOUND_ERROR, UNSUPPORTED_UI_VERSION_ERROR};
 use crate::syspass::login::login_to_syspass;
@@ -71,7 +71,7 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
 
     let mut cache_items_counter: u16 = 0;
 
-    let cache_file_path = Path::new(ACCOUNTS_CACHE_FILENAME);
+    let cache_file_path = Path::new(ACCOUNTS_GET_CACHE_FILENAME);
 
     while !last_page {
 
@@ -157,7 +157,7 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
                                 debug!("cache items counter: {}", cache_items_counter);
 
                                 if cache_items_counter >= config.cache.save_accounts {
-                                    match save_accounts_into_file(&accounts, cache_file_path) {
+                                    match save_cache_data_into_file(&accounts, cache_file_path) {
                                         Ok(_) => {
                                             info!("accounts cache has been updated");
                                             cache_items_counter = 0;
