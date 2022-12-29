@@ -46,7 +46,7 @@ async fn main() {
         .name(APP_NAME)
         .bin_name(APP_NAME)
         .about("Permissions Tool for sysPass")
-        .version("0.4.0")
+        .version("0.5.0")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
