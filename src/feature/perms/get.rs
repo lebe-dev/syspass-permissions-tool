@@ -156,7 +156,7 @@ pub async fn get_accounts_with_empty_permissions(config: &AppConfig,
                                 cache_items_counter += 1;
                                 debug!("cache items counter: {}", cache_items_counter);
 
-                                if cache_items_counter >= config.cache.save_accounts {
+                                if cache_items_counter >= config.progress_cache.get_accounts {
                                     match save_cache_data_into_file(&accounts, cache_file_path) {
                                         Ok(_) => {
                                             info!("accounts cache has been updated");
