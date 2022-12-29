@@ -71,7 +71,7 @@ pub async fn set_permissions_for_accounts_in_syspass(config: &AppConfig, xml_fil
                                 &account.login, &account.name,
                                 &category.name, &client.name,
                                 &latest_processed_account) {
-                                info!("xml account with login '{}' (name '{}') doesn't match with latest processed account, skip", &account.login, &account.name);
+                                info!("xml account with login '{}' (name '{}') doesn't match with latest processed account '{}', skip", &latest_processed_account.login, &account.login, &account.name);
 
                             } else {
                                 info!("xml account with login '{}' (name '{}') matched with latest processed account, process resumed", &account.login, &account.name);
@@ -156,11 +156,15 @@ fn xml_account_matches_latest_processed(xml_account_login: &str,
                                         xml_account_category: &str,
                                         xml_account_client: &str,
                                         latest_processed_account: &Account) -> bool {
+    (latest_processed_account.login.is_empty() &&
+    latest_processed_account.name.is_empty() &&
+    latest_processed_account.category.is_empty() &&
+    latest_processed_account.client.is_empty()) ||
 
-    latest_processed_account.login == xml_account_login &&
+    (latest_processed_account.login == xml_account_login &&
     latest_processed_account.name == xml_account_name &&
     latest_processed_account.category == xml_account_category &&
-    latest_processed_account.client == xml_account_client
+    latest_processed_account.client == xml_account_client)
 }
 
 fn get_account_from_xml_account(xml_account_login: &str,
