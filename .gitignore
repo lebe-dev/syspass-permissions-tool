@@ -4,4 +4,5 @@
 /*.log
 /import.xml
 /spt.yml
-/accounts.cache
+/accounts-set.cache
+/accounts-get.cache
