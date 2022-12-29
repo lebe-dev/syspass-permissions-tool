@@ -23,8 +23,12 @@
 4. Run:
 
     ```shell
-    ./spt set --xml-file import.xml
+    ./spt set [OPTIONS] --xml-file import.xml
     ```
+   
+    Options:
+
+    - `--resume` - try to continue process based on file cache.
 
 ## 2. Get empty permissions
 
