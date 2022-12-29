@@ -23,7 +23,8 @@ pub struct AppConfig {
 
     pub delays: DelaysConfig,
 
-    pub cache: CacheConfig
+    #[serde(rename(deserialize = "progress-cache"))]
+    pub progress_cache: CommandProgressCacheConfig
 }
 
 impl Display for AppConfig {
@@ -34,6 +35,7 @@ impl Display for AppConfig {
         write!(f, "auth: {}", self.auth)?;
         write!(f, "permissions: {}", self.permissions)?;
         write!(f, "delays: {}", self.delays)?;
+        write!(f, "progress-cache: {}", self.progress_cache)?;
         write!(f, "</AppConfig>")
     }
 }
@@ -135,15 +137,22 @@ impl Display for DelaysConfig {
 }
 
 #[derive(Deserialize,PartialEq,Debug)]
-pub struct CacheConfig {
+pub struct CommandProgressCacheConfig {
+    /// Save progress for `get accounts with empty permissions` command
     /// Create cache for accounts every N records
-    #[serde(rename(deserialize = "save-accounts"))]
-    pub save_accounts: u16
+    #[serde(rename(deserialize = "set-accounts"))]
+    pub set_accounts: u16,
+
+    /// Cache for `get accounts with empty permissions` command
+    /// Create cache for accounts every N records
+    #[serde(rename(deserialize = "get-accounts"))]
+    pub get_accounts: u16
 }
 
-impl Display for CacheConfig {
+impl Display for CommandProgressCacheConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<Cache-Config> save-accounts: {} </Cache-Config>", self.save_accounts)
+        write!(f, "<Command-Progress-Config> set-accounts: {}, get-accounts: {} </Cache-Config>",
+               self.set_accounts, self.get_accounts)
     }
 }
 
@@ -164,7 +173,7 @@ mod tests {
 
     use fake::{Fake, Faker};
 
-    use crate::config::{AppConfig, AuthConfig, CacheConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig, WebDriverConfig};
+    use crate::config::{AppConfig, AuthConfig, CommandProgressCacheConfig, DelaysConfig, EntityPermissionsConfig, load_config_from_file, PermissionsConfig, WebDriverConfig};
     use crate::CONFIG_FILE;
 
     #[test]
@@ -214,8 +223,9 @@ mod tests {
                     "--headless".to_string()
                 ],
             },
-            cache: CacheConfig {
-                save_accounts: 10,
+            progress_cache: CommandProgressCacheConfig {
+                set_accounts: 10,
+                get_accounts: 11,
             },
         };
 
