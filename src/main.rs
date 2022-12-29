@@ -5,11 +5,12 @@ use clap::{Arg, ArgAction, ArgMatches, Command};
 use log::{error, info};
 use serde::Deserialize;
 
-use crate::cache::{ACCOUNTS_GET_CACHE_FILENAME, load_cache_data_from_file};
+use crate::cache::{ACCOUNTS_GET_CACHE_FILENAME, ACCOUNTS_SET_CACHE_FILENAME, load_cache_data_from_file};
 use crate::config::load_config_from_file;
 use crate::feature::perms::get::{AccountFilterOptions, get_accounts_with_empty_permissions};
 use crate::feature::perms::set::set_permissions_for_accounts_in_syspass;
 use crate::logging::logging::get_logging_config;
+use crate::syspass::Account;
 
 pub mod config;
 pub mod types;
@@ -59,6 +60,13 @@ async fn main() {
                         .help("xml file with accounts")
                         .action(ArgAction::Set)
                         .required(false),
+                )
+                .arg(
+                    Arg::new(RESUME_OPTION)
+                        .long(RESUME_OPTION)
+                        .help("resume process from last error")
+                        .action(ArgAction::SetTrue)
+                        .required(false)
                 )
         )
         .subcommand(
@@ -126,7 +134,17 @@ async fn main() {
                     if xml_file.is_file() && xml_file.exists() {
                         match load_config_from_file(config_file) {
                             Ok(config) => {
-                                match set_permissions_for_accounts_in_syspass(&config, xml_file).await {
+
+                                let fallback_account = Account {
+                                    name: "".to_string(),
+                                    login: "".to_string(),
+                                    category: "".to_string(),
+                                    client: "".to_string(),
+                                };
+
+                                let latest_progress_account: Account = get_command_progress_data_from_cache(set_matches, ACCOUNTS_SET_CACHE_FILENAME, fallback_account);
+
+                                match set_permissions_for_accounts_in_syspass(&config, xml_file, &latest_progress_account).await {
                                     Ok(_) => println!("complete"),
                                     Err(e) => {
                                         eprintln!("error: {}", e.root_cause());

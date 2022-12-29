@@ -14,6 +14,6 @@
 
    Uses chrome webdriver.
 
-## File cache
+## Progress cache for command
 
-Command `get-empty` creates file cache (filename `accounts-get.cache`) inside working directory.
+Commands `set` and `get-empty` creates file cache inside working directory.

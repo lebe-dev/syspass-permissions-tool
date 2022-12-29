@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::{EmptyResult, OperationResult};
 
+pub const ACCOUNTS_SET_CACHE_FILENAME: &str = "accounts-set.cache";
 pub const ACCOUNTS_GET_CACHE_FILENAME: &str = "accounts-get.cache";
 
 pub fn save_cache_data_into_file<T: Serialize>(data: &T, filepath: &Path) -> EmptyResult {
